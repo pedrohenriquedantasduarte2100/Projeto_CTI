@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Análise de Tickets CTI 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #0d0f14; --bg2: #151820; --bg3: #1c2030; --bg4: #222638;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+  --text: #e8eaf0; --text2: #8890a4; --text3: #545c70;
+  --blue: #4a9eff; --teal: #2dd4bf; --amber: #fbbf24;
+  --red: #f87171; --green: #4ade80; --purple: #a78bfa;
+  --pink: #f472b6; --orange: #fb923c; --gold: #f0c040;
+  --r: 12px; --rsm: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#0d0f14 0%,#13172a 100%);
+  border-bottom:1px solid var(--border2);
+  padding:16px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+  position:sticky;top:0;z-index:200;
+  backdrop-filter:blur(16px);
+}
+.header-left{display:flex;align-items:center;gap:14px;}
+.logo{
+  width:38px;height:38px;background:var(--blue);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#fff;letter-spacing:-1px;
+}
+.header h1{font-size:15px;font-weight:600;letter-spacing:-0.3px;}
+.header-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
+/* NAV TABS */
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{
+  font-size:12px;font-weight:500;padding:7px 16px;border-radius:var(--rsm);
+  border:1px solid var(--border2);background:transparent;
+  color:var(--text2);cursor:pointer;transition:all .2s;
+}
+.nav-tab:hover{color:var(--text);border-color:var(--blue);}
+.nav-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.nav-tab.active.gold{background:var(--gold);color:#0d0f14;border-color:var(--gold);}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;}
+select{
+  background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;
+  padding:7px 12px;border-radius:var(--rsm);cursor:pointer;outline:none;
+  transition:border-color .2s;
+}
+select:hover,select:focus{border-color:var(--blue);}
+select option{background:#1c2030;}
+
+/* SECTIONS */
+.section{display:none;padding:24px 28px;max-width:1440px;margin:0 auto;}
+.section.active{display:block;}
+
+/* SECTION HEADER */
+.sec-hd{margin-bottom:20px;}
+.sec-hd h2{font-size:18px;font-weight:600;letter-spacing:-0.3px;margin-bottom:4px;}
+.sec-hd p{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:11px;margin-bottom:20px;}
+.kpi{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:15px 17px;position:relative;overflow:hidden;
+  transition:border-color .2s,transform .15s;cursor:default;
+}
+.kpi:hover{border-color:var(--border2);transform:translateY(-1px);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.blue::before{background:var(--blue);}
+.kpi.teal::before{background:var(--teal);}
+.kpi.amber::before{background:var(--amber);}
+.kpi.red::before{background:var(--red);}
+.kpi.green::before{background:var(--green);}
+.kpi.purple::before{background:var(--purple);}
+.kpi.pink::before{background:var(--pink);}
+.kpi.orange::before{background:var(--orange);}
+.kpi.gold::before{background:var(--gold);}
+.kpi-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;}
+.kpi-value{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;letter-spacing:-1px;line-height:1;}
+.kpi.blue .kpi-value{color:var(--blue);}
+.kpi.teal .kpi-value{color:var(--teal);}
+.kpi.amber .kpi-value{color:var(--amber);}
+.kpi.red .kpi-value{color:var(--red);}
+.kpi.green .kpi-value{color:var(--green);}
+.kpi.purple .kpi-value{color:var(--purple);}
+.kpi.pink .kpi-value{color:var(--pink);}
+.kpi.orange .kpi-value{color:var(--orange);}
+.kpi.gold .kpi-value{color:var(--gold);}
+.kpi-sub{font-size:10px;color:var(--text3);margin-top:4px;line-height:1.4;}
+
+/* INSIGHTS */
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:18px;}
+.insight{
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--blue);border-radius:var(--r);padding:13px 15px;
+}
+.insight.amber{border-left-color:var(--amber);}
+.insight.red{border-left-color:var(--red);}
+.insight.teal{border-left-color:var(--teal);}
+.insight.green{border-left-color:var(--green);}
+.insight.purple{border-left-color:var(--purple);}
+.insight.gold{border-left-color:var(--gold);}
+.insight.orange{border-left-color:var(--orange);}
+.insight-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.insight-text{font-size:11px;color:var(--text2);line-height:1.55;}
+
+/* GRID */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+.row1{margin-bottom:14px;}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;transition:border-color .2s;}
+.card:hover{border-color:var(--border2);}
+.card-title{font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.card-title .badge-f{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(74,158,255,0.15);color:var(--blue);margin-left:4px;}
+.card-title .badge-f.gold{background:rgba(240,192,64,0.15);color:var(--gold);}
+
+/* SAZO TABS */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.tab{font-size:10px;font-family:'DM Sans',sans-serif;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;}
+.tab:hover{border-color:var(--border2);color:var(--text);}
+.tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* BAR TABLE */
+.bar-table{display:flex;flex-direction:column;gap:7px;}
+.bar-row{display:flex;align-items:center;gap:9px;}
+.bar-label{font-size:11px;color:var(--text2);width:148px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;height:12px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s ease;}
+.bar-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--text2);width:60px;text-align:right;flex-shrink:0;}
+
+/* BADGE */
+.badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:rgba(74,158,255,0.15);color:var(--blue);margin-left:6px;vertical-align:middle;}
+.badge.gold{background:rgba(240,192,64,0.15);color:var(--gold);}
+.badge.green{background:rgba(74,222,128,0.15);color:var(--green);}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+
+/* RESET BUTTON */
+.btn-reset{
+  font-size:11px;font-weight:500;padding:6px 12px;border-radius:var(--rsm);
+  border:1px solid rgba(248,113,113,0.4);background:rgba(248,113,113,0.1);
+  color:var(--red);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.btn-reset:hover{background:rgba(248,113,113,0.2);border-color:var(--red);}
+
+/* ACTIVE FILTER BANNER */
+.filter-banner{
+  display:none;padding:8px 28px;background:rgba(74,158,255,0.06);
+  border-bottom:1px solid rgba(74,158,255,0.15);
+  font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;
+  align-items:center;gap:10px;flex-wrap:wrap;
+}
+.filter-banner.visible{display:flex;}
+.filter-banner strong{color:var(--text);}
+.fpill{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;
+  font-size:10px;font-weight:500;
+}
+.fpill.serv{background:rgba(74,158,255,0.15);color:var(--blue);}
+.fpill.mes{background:rgba(45,212,191,0.15);color:var(--teal);}
+.fpill.cls.A{background:rgba(240,192,64,0.15);color:var(--gold);}
+.fpill.cls.B{background:rgba(74,158,255,0.15);color:var(--blue);}
+.fpill.cls.C{background:rgba(251,146,60,0.15);color:var(--orange);}
+
+/* FOOTER */
+.footer{text-align:center;padding:18px 28px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);margin-top:8px;font-family:'DM Mono',monospace;}
+
+canvas{display:block;}
+@media(max-width:800px){
+  .section{padding:14px;}
+  .header{padding:12px 16px;}
+  .row2,.row3{grid-template-columns:1fr;}
+  .nav-tabs{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">TK</div>
+    <div>
+      <h1>Análise de Tickets <span class="badge">2025</span></h1>
+      <div class="header-sub" id="headerSub">25.164 tickets fechados · jan–dez 2025</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tabGeral" onclick="showSection('geral',this)">Visão Geral</button>
+      <button class="nav-tab" id="tabConsultores" onclick="showSection('consultores',this)">Consultores</button>
+      <button class="nav-tab" id="tabTempos" onclick="showSection('tempos',this)">Tempos</button>
+    </div>
+    <div class="filters">
+      <select id="filterServico"><option value="all">Todos os serviços</option></select>
+      <select id="filterMes"><option value="all">Todos os meses</option></select>
+      <select id="filterClasse"><option value="all">Todas as classes</option><option value="A">Classe A</option><option value="B">Classe B</option><option value="C">Classe C</option></select>
+      <button class="btn-reset" id="btnReset" onclick="resetFilters()" style="display:none">✕ Limpar</button>
+    </div>
+  </div>
+</div>
+
+<div class="filter-banner" id="filterBanner"><strong>Filtros ativos:</strong><span id="filterPills"></span></div>
+<!-- ══ SEÇÃO: VISÃO GERAL ══ -->
+<div class="section active" id="geral">
+  <div class="sec-hd">
+    <h2>Visão Geral</h2>
+    <p id="descGeral">Base completa · 102.791 interações · 10 consultores · 15 serviços</p>
+  </div>
+
+  <div class="kpis" id="kpisGeral">
+    <div class="kpi blue"><div class="kpi-label">Tickets filtrados</div><div class="kpi-value" id="kTotal">—</div><div class="kpi-sub">no período selecionado</div></div>
+    <div class="kpi teal"><div class="kpi-label">Tickets Fechados</div><div class="kpi-value">25.164</div><div class="kpi-sub">99,5% de resolução</div></div>
+    <div class="kpi gold"><div class="kpi-label">Classe A</div><div class="kpi-value">11.845</div><div class="kpi-sub">46,8% do total</div></div>
+    <div class="kpi purple"><div class="kpi-label">Classe B</div><div class="kpi-value">7.850</div><div class="kpi-sub">31,0% do total</div></div>
+    <div class="kpi orange"><div class="kpi-label">Classe C</div><div class="kpi-value">5.606</div><div class="kpi-sub">22,2% do total</div></div>
+    <div class="kpi amber"><div class="kpi-label">Maior volume</div><div class="kpi-value">Janaina</div><div class="kpi-sub">7.713 tickets</div></div>
+    <div class="kpi red"><div class="kpi-label">Serviço #1</div><div class="kpi-value">Ac. Ded.</div><div class="kpi-sub">7.030 tickets</div></div>
+  </div>
+
+  <div class="insights" id="insightsGeral">
+    <div class="insight"><div class="insight-title">📊 Distribuição de Classes</div><div class="insight-text">Classe A lidera com 46,8% (11.845 tickets). Alto volume A indica carteira de clientes estratégicos muito ativa.</div></div>
+    <div class="insight teal"><div class="insight-title">📈 Pico Jul–Out</div><div class="insight-text">Julho a outubro concentram os maiores volumes (2.266–2.478/mês), sugerindo sazonalidade operacional dos clientes.</div></div>
+    <div class="insight red"><div class="insight-title">🔴 Acesso Dedicado domina</div><div class="insight-text">7.030 tickets — quase o dobro do 2º colocado. Link Indisponível é o título mais recorrente com 1.569 ocorrências.</div></div>
+    <div class="insight amber"><div class="insight-title">⚠️ Fortinet queda no fim do ano</div><div class="insight-text">Nov/Dez caíram de 547 para 337 tickets. Verificar mudança de contrato ou de operação.</div></div>
+    <div class="insight green"><div class="insight-title">✅ 99,5% de fechamento</div><div class="insight-text">Apenas 137 tickets em aberto ao final do período. Excelente gestão de fila.</div></div>
+    <div class="insight purple"><div class="insight-title">🏆 Top 3 consultores = 70%</div><div class="insight-text">Janaina, Márcio Takeshi e Julio Cesar concentram 70% do volume total. Alta dependência de pessoas-chave.</div></div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Volume por Serviço <span class="badge-f" id="badgeServGeral">todos os meses</span></div>
+      <div style="position:relative;height:290px;"><canvas id="chartServGeral"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Sazonalidade Mensal
+        <span class="badge-f" id="badgeSazoGeral">todos os serviços</span>
+      </div>
+      <div class="tabs" id="tabsSazoGeral"></div>
+      <div style="position:relative;height:230px;"><canvas id="chartSazoGeral"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--gold)"></span>Distribuição de Classes (A/B/C)</div>
+      <div style="position:relative;height:240px;"><canvas id="chartClasses"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>Top 12 Títulos — Volume</div>
+      <div style="position:relative;height:240px;"><canvas id="chartTitulosGeral"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Faixas de Tempo em Aberto</div>
+      <div style="position:relative;height:200px;"><canvas id="chartFaixas"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--green)"></span>Tempo Trabalhado por Ticket</div>
+      <div style="position:relative;height:200px;"><canvas id="chartTrabalhado"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SEÇÃO: CLASSE A ══ -->
+<div class="section" id="classea">
+  <div class="sec-hd">
+    <h2>Classe A <span class="badge gold">11.792 tickets</span></h2>
+    <p id="descA">Clientes estratégicos · 46,6% do total · filtros ativos no topo</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi gold"><div class="kpi-label">Tickets Classe A</div><div class="kpi-value" id="kTotalA">11.792</div><div class="kpi-sub">período completo</div></div>
+    <div class="kpi blue"><div class="kpi-label">Fortinet (A)</div><div class="kpi-value">3.584</div><div class="kpi-sub">30,4% dos tickets A</div></div>
+    <div class="kpi teal"><div class="kpi-label">Acesso Ded. (A)</div><div class="kpi-value">1.656</div><div class="kpi-sub">14,0% dos tickets A</div></div>
+    <div class="kpi purple"><div class="kpi-label">Márcio Takeshi</div><div class="kpi-value">4.811</div><div class="kpi-sub">maior vol. Classe A</div></div>
+    <div class="kpi orange"><div class="kpi-label">Horas Márcio</div><div class="kpi-value">1.831h</div><div class="kpi-sub">total trabalhado A</div></div>
+    <div class="kpi green"><div class="kpi-label">Jeferson Efic.</div><div class="kpi-value">10min</div><div class="kpi-sub">menor média/ticket A</div></div>
+    <div class="kpi red"><div class="kpi-label">Karina Esforço</div><div class="kpi-value">37,6min</div><div class="kpi-sub">maior média/ticket A</div></div>
+  </div>
+
+  <div class="insights">
+    <div class="insight gold"><div class="insight-title">🔵 Fortinet = núcleo da Classe A</div><div class="insight-text">3.584 tickets e 2.241h trabalhadas. É o serviço mais crítico para clientes estratégicos, exigindo equipe especializada.</div></div>
+    <div class="insight teal"><div class="insight-title">📦 Backup cresce ao longo do ano</div><div class="insight-text">Jan: 35 tickets. Set/Out: ~99. Tendência acelerada. Clientes A com backup têm chamados complexos (~45 min/ticket).</div></div>
+    <div class="insight red"><div class="insight-title">🔴 Link Indisponível lidera</div><div class="insight-text">594 ocorrências em Classe A — o título mais frequente. Indicador de SLA crítico. Candidato a monitoramento preditivo.</div></div>
+    <div class="insight green"><div class="insight-title">✅ Jeferson: 10 min/ticket</div><div class="insight-text">1.256 tickets com média de 10 min. Referência em eficiência para padronização de atendimento.</div></div>
+    <div class="insight purple"><div class="insight-title">📈 Pico Ago–Out</div><div class="insight-text">Agosto (1.211), Set (1.163) e Out (1.189) formam o trimestre crítico da Classe A. Reforço de equipe recomendado.</div></div>
+    <div class="insight amber"><div class="insight-title">⚠️ Karina: 37,6 min/ticket</div><div class="insight-text">Alta complexidade ou escopo específico. Com apenas 63 tickets no ano, pode refletir casos excepcionais.</div></div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--gold)"></span>Tickets Classe A por Serviço <span class="badge-f gold" id="badgeServA">todos os meses</span></div>
+      <div style="position:relative;height:290px;"><canvas id="chartServA"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Sazonalidade Classe A</div>
+      <div class="tabs" id="tabsSazoA"></div>
+      <div style="position:relative;height:230px;"><canvas id="chartSazoA"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>Top 10 Títulos — Classe A</div>
+      <div class="bar-table" id="barTitulosA"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Horas Trabalhadas por Serviço — A</div>
+      <div style="position:relative;height:270px;"><canvas id="chartHorasServA"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row3">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Volume por Consultor (A)</div>
+      <div class="bar-table" id="barConsultAVol"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Total de Horas por Consultor (A)</div>
+      <div class="bar-table" id="barConsultAHoras"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--red)"></span>Média min/ticket por Consultor (A)</div>
+      <div class="bar-table" id="barConsultAMedia"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SEÇÃO: CONSULTORES ══ -->
+<div class="section" id="consultores">
+  <div class="sec-hd">
+    <h2>Análise de Consultores</h2>
+    <p>Volume, horas trabalhadas e eficiência — base completa e filtrada</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi purple"><div class="kpi-label">Total Consultores</div><div class="kpi-value">10</div><div class="kpi-sub">ativos em 2025</div></div>
+    <div class="kpi blue"><div class="kpi-label">Janaina</div><div class="kpi-value">7.713</div><div class="kpi-sub">tickets · maior volume</div></div>
+    <div class="kpi amber"><div class="kpi-label">Janaina</div><div class="kpi-value">3.668h</div><div class="kpi-sub">maior total de horas</div></div>
+    <div class="kpi red"><div class="kpi-label">Eduardo N.</div><div class="kpi-value">70,6</div><div class="kpi-sub">min/ticket · maior esforço</div></div>
+    <div class="kpi green"><div class="kpi-label">Elaine</div><div class="kpi-value">11,1</div><div class="kpi-sub">min/ticket · mais eficiente</div></div>
+    <div class="kpi teal"><div class="kpi-label">Top 3</div><div class="kpi-value">70%</div><div class="kpi-sub">do volume total</div></div>
+  </div>
+
+  <div class="insights">
+    <div class="insight"><div class="insight-title">🏆 Concentração de Volume</div><div class="insight-text">Janaina, Márcio e Julio respondem por 17.766 tickets — 70% do total. Risco operacional se algum deles sair.</div></div>
+    <div class="insight red"><div class="insight-title">🔎 Eduardo Nogueira — alto esforço</div><div class="insight-text">70,6 min/ticket vs média de ~20 min. Pode ser sobrecarga ou especialização em casos complexos. Investigar perfil de chamados.</div></div>
+    <div class="insight green"><div class="insight-title">✅ Elaine & Jeferson eficientes</div><div class="insight-text">11,1 e 14,4 min/ticket respectivamente. Excelentes referências para documentação e mentoria de outros consultores.</div></div>
+    <div class="insight amber"><div class="insight-title">⚠️ Flavio: 30,6 min/ticket</div><div class="insight-text">Volume menor (667 tickets) mas esforço acima da média. Pode ter perfil de tickets mais complexos ou específicos.</div></div>
+    <div class="insight teal"><div class="insight-title">📊 CTI-ADM como suporte</div><div class="insight-text">1.837 tickets com 12,6 min/ticket. Perfil de triagem/administrativo — tickets rápidos e de alta rotatividade.</div></div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Volume Total de Tickets por Consultor</div>
+      <div style="position:relative;height:300px;"><canvas id="chartConsVol"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>Total de Horas Trabalhadas por Consultor</div>
+      <div style="position:relative;height:300px;"><canvas id="chartConsHoras"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--pink)"></span>Média min/ticket — Eficiência por Consultor</div>
+      <div style="position:relative;height:300px;"><canvas id="chartConsMin"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Top Títulos com Maior Esforço (min/ticket)</div>
+      <div style="position:relative;height:300px;"><canvas id="chartEsforco"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SEÇÃO: TEMPOS ══ -->
+<div class="section" id="tempos">
+  <div class="sec-hd">
+    <h2>Análise de Tempos</h2>
+    <p>Tempo em aberto, tempo trabalhado e distribuição por faixas</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi teal"><div class="kpi-label">Mediana abertura</div><div class="kpi-value">29h</div><div class="kpi-sub">tempo que fica aberto</div></div>
+    <div class="kpi amber"><div class="kpi-label">Média abertura</div><div class="kpi-value">91h</div><div class="kpi-sub">puxada por outliers</div></div>
+    <div class="kpi green"><div class="kpi-label">Resolvidos mesma hora</div><div class="kpi-value">57,1%</div><div class="kpi-sub">dos tickets</div></div>
+    <div class="kpi blue"><div class="kpi-label">Mediana trabalhado</div><div class="kpi-value">~9min</div><div class="kpi-sub">por ticket</div></div>
+    <div class="kpi purple"><div class="kpi-label">< 20min</div><div class="kpi-value">72,6%</div><div class="kpi-sub">dos tickets têm ≤ 20min</div></div>
+    <div class="kpi red"><div class="kpi-label">> 1h trabalhado</div><div class="kpi-value">7,6%</div><div class="kpi-sub">dos tickets</div></div>
+  </div>
+
+  <div class="insights">
+    <div class="insight teal"><div class="insight-title">⚡ 57,1% resolvidos na mesma hora</div><div class="insight-text">Mais da metade dos tickets tem duração zero — resolvidos imediatamente na abertura. Reflexo de chamados simples e bem roteados.</div></div>
+    <div class="insight amber"><div class="insight-title">📊 Média vs Mediana: outliers pesam</div><div class="insight-text">Mediana de 29h vs média de 91h. Poucos tickets ficam meses abertos (ex: problemas de desenvolvimento) e puxam a média para cima.</div></div>
+    <div class="insight green"><div class="insight-title">✅ 72,6% dos tickets ≤ 20 min</div><div class="insight-text">Grande maioria tem tempo trabalhado baixo (< 20 min). Operação eficiente em volume, com gargalo apenas nos casos complexos.</div></div>
+    <div class="insight red"><div class="insight-title">🔴 12–16% ficam mais de 1 dia abertos</div><div class="insight-text">Tickets em faixas 1–3d e 3–7d somam 20,6%. Monitorar escalada e SLA nesses casos.</div></div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Faixas de Tempo em Aberto (criação → última atualização)</div>
+      <div style="position:relative;height:260px;"><canvas id="chartFaixasT"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--green)"></span>Faixas de Tempo Trabalhado por Ticket</div>
+      <div style="position:relative;height:260px;"><canvas id="chartTrabalhadoT"></canvas></div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>Distribuição — Tickets por Tempo em Aberto (até p95)</div>
+      <div style="position:relative;height:240px;"><canvas id="chartDistAberto"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Sazonalidade Mensal — Todos os Serviços</div>
+      <div class="tabs" id="tabsSazoT"></div>
+      <div style="position:relative;height:200px;"><canvas id="chartSazoT"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">CTI · Análise de Tickets 2025 · Dashboard Unificado · Gerado automaticamente por análise de dados</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DADOS BASE
+// ══════════════════════════════════════════════════
+const SERVICOS = ['Acesso Dedicado','Fortinet','E-mail','Backup','Hospedagem','Antivirus','SonicWall','WiFi+','Cloud - Serv. Virtual','Acesso Link Comercio','Trust-Mail'];
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+// Volume por serviço por mês (todos os tickets fechados)
+const HEATMAP_GERAL = {
+  'Acesso Dedicado':       [590,526,559,613,574,559,611,606,624,609,565,516],
+  'Fortinet':              [532,517,495,512,479,471,581,509,548,547,388,337],
+  'E-mail':                [137,81,117,145,113,155,110,132,137,153,120,67],
+  'Backup':                [35,26,44,56,64,56,63,69,68,99,61,52],
+  'Hospedagem':            [40,57,49,51,40,70,59,59,56,40,44,27],
+  'Antivirus':             [31,22,21,82,43,31,25,35,30,27,34,10],
+  'SonicWall':             [48,41,41,50,23,38,38,27,26,20,24,13],
+  'WiFi+':                 [28,24,18,18,14,12,9,21,20,24,14,4],
+  'Cloud - Serv. Virtual': [13,20,27,6,19,16,11,16,18,16,9,5],
+  'Acesso Link Comercio':  [5,18,4,10,12,15,17,12,17,15,6,30],
+  'Trust-Mail':            [15,34,10,6,18,4,4,6,3,5,3,1]
+};
+
+// Classe A por serviço por mês
+const HEATMAP_A = {
+  'Fortinet':              [256,251,245,268,254,240,308,268,290,291,215,198],
+  'Acesso Dedicado':       [103,96,106,123,118,106,126,154,160,161,121,110],
+  'Backup':                [35,26,44,47,52,50,51,57,54,99,51,51],
+  'E-mail':                [44,29,38,52,36,50,36,41,42,49,43,23],
+  'SonicWall':             [27,22,24,25,12,22,24,15,18,14,12,8],
+  'Antivirus':             [20,15,14,62,32,19,14,22,17,12,21,4],
+  'Hospedagem':            [16,22,19,22,16,24,22,22,21,18,22,16],
+  'Cloud - Serv. Virtual': [10,17,22,4,14,12,9,14,14,14,7,2],
+  'WiFi+':                 [14,11,10,8,8,7,5,13,12,15,8,3],
+  'Trust-Mail':            [10,22,7,4,13,2,2,4,2,2,2,1]
+};
+
+const SERVICOS_A = ['Fortinet','Acesso Dedicado','Backup','E-mail','SonicWall','Antivirus','Hospedagem','Cloud - Serv. Virtual','WiFi+','Trust-Mail'];
+
+const COR_SERV = {
+  'Acesso Dedicado':'#4a9eff','Fortinet':'#fbbf24','E-mail':'#2dd4bf',
+  'Backup':'#a78bfa','Hospedagem':'#f472b6','Antivirus':'#f87171',
+  'SonicWall':'#4ade80','WiFi+':'#fb923c','Cloud - Serv. Virtual':'#34d399',
+  'Acesso Link Comercio':'#60a5fa','Trust-Mail':'#e879f9'
+};
+const COR_ARR = Object.values(COR_SERV);
+
+const TOPS_VOL_LABELS = ['Link Indisponível','Suporte Supernova Ac.','Instabilidade','Liberação de Site','WebFilter Liberação','Pro Ativo Monit.','Cloud Serv. Virtual','Dúvida','Rompimento','Alerta SNMP','VPN Client Prob.','Regra FW Alteração'];
+const TOPS_VOL_VALS   = [1569,895,450,359,321,202,175,148,143,137,135,130];
+
+const TOPS_ESF_LABELS = ['Fortigate s/Backup','Migração Serv. KSC','Ruckus Problema','Planilha','Renov. Lic. Fortigate','Licenciamento Fortinet','Autent. Não Autent.','VPN S2S Criação','Backups Fortigate 28','Backups Fortigate 04'];
+const TOPS_ESF_VALS   = [94,82,75,66,66,58,56,51,51,50];
+
+const CONSUL_NOMES   = ['Janaina','Márcio Takeshi','Julio Cesar','Jeferson','CTI-ADM','Eduardo N.','Karina','Flavio','Elaine','Arnizal'];
+const CONSUL_TICKS   = [7713,6383,3670,2082,1837,1424,1202,667,319,2];
+const CONSUL_HORAS   = [3668.3,2243.9,1120.7,386.1,379.4,1631.3,313.7,327.6,51.3,0.4];
+const CONSUL_MIN     = [21.4,21.8,19.1,14.4,12.6,70.6,17.1,30.6,11.1,12.9];
+
+// Classe A consultores
+const CONSUL_A_NOMES = ['Márcio Takeshi','Janaina','Julio Cesar','Jeferson','Flavio','Eduardo N.','Karina','Elaine'];
+const CONSUL_A_VOL   = [4811,2793,2362,1256,421,76,63,9];
+const CONSUL_A_HORAS = [1830.7,1205.3,770.7,209.6,229.7,14.6,39.5,1.2];
+const CONSUL_A_MIN   = [22.8,25.9,19.6,10.0,32.7,11.5,37.6,7.7];
+
+const FAIXAS_LABELS = ['Mesma hora','< 1h','1–4h','4–8h','8–24h','1–3d','3–7d','> 7d'];
+const FAIXAS_VALS   = [57.1,7.1,5.7,0.2,4.7,12.4,8.2,4.6];
+const TRAB_LABELS   = ['< 5min','5–10min','10–20min','20–30min','30–60min','1–2h','> 2h'];
+const TRAB_VALS     = [28.3,22.4,21.9,9.7,10.1,5.2,2.4];
+
+// Distribuição histograma simulado (horas em aberto, agrupado em bins de 12h até 240h)
+const HIST_LABELS = ['0–12h','12–24h','24–48h','48–72h','3–5d','5–7d','7–14d','14–30d','> 30d'];
+const HIST_VALS   = [8640,3180,2210,1540,2340,1680,2050,1680,1440];
+
+// ══════════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════════
+let fServ  = 'all';
+let fMes   = 'all';
+let fClass = 'all';
+let sazoGeralTab = 0;
+let sazoATab     = 0;
+let sazoTTab     = 0;
+const charts = {};
+
+// ══════════════════════════════════════════════════
+// FILTROS
+// ══════════════════════════════════════════════════
+const selS = document.getElementById('filterServico');
+const selM = document.getElementById('filterMes');
+const selC = document.getElementById('filterClasse');
+
+SERVICOS.forEach(s => { const o = document.createElement('option'); o.value=s; o.textContent=s; selS.appendChild(o); });
+MESES.forEach((m,i) => { const o = document.createElement('option'); o.value=i; o.textContent=m+'/25'; selM.appendChild(o); });
+
+selS.addEventListener('change', () => { fServ=selS.value; sazoGeralTab=0; sazoATab=0; updateAll(); });
+selM.addEventListener('change', () => { fMes=selM.value; sazoGeralTab=0; sazoATab=0; updateAll(); });
+selC.addEventListener('change', () => {
+  fClass = selC.value;
+  // Auto-navigate: Classe A → section classea; all/B/C → section geral
+  if(fClass === 'A') {
+    activateSection('classea');
+  } else {
+    activateSection('geral');
+  }
+  updateAll();
+});
+
+function resetFilters() {
+  fServ='all'; fMes='all'; fClass='all';
+  selS.value='all'; selM.value='all'; selC.value='all';
+  sazoGeralTab=0; sazoATab=0;
+  activateSection('geral');
+  updateAll();
+}
+
+// ══════════════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════════════
+function activateSection(id) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // highlight the matching nav tab if it exists
+  const tabMap = {geral:'tabGeral', consultores:'tabConsultores', tempos:'tabTempos'};
+  if(tabMap[id]) document.getElementById(tabMap[id]).classList.add('active');
+}
+
+function showSection(id, btn) {
+  // When user clicks a nav tab, reset classe filter if going away from classea
+  if(id !== 'classea' && fClass === 'A') {
+    fClass = 'all';
+    selC.value = 'all';
+    updateAll();
+  }
+  activateSection(id);
+}
+
+// ══════════════════════════════════════════════════
+// CHART HELPERS
+// ══════════════════════════════════════════════════
+const GC = 'rgba(255,255,255,0.05)';
+const TC = '#545c70';
+const TC2 = '#8890a4';
+const TOOLTIP_DEF = {
+  backgroundColor:'#1c2030',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
+  titleColor:'#e8eaf0',bodyColor:'#8890a4',padding:10,cornerRadius:8,
+  titleFont:{family:'DM Sans',size:12,weight:'600'},
+  bodyFont:{family:'DM Mono',size:11}
+};
+const SCALE_DEF = (xMax) => ({
+  x:{grid:{color:GC},ticks:{color:TC,font:{size:10}}, ...(xMax?{max:xMax}:{})},
+  y:{grid:{display:false},ticks:{color:TC2,font:{size:10},autoSkip:false}}
+});
+const SCALE_DEF_V = () => ({
+  x:{grid:{color:GC},ticks:{color:TC2,font:{size:10},autoSkip:false,maxRotation:35}},
+  y:{grid:{color:GC},ticks:{color:TC,font:{size:10}}}
+});
+
+function mk(id, cfg) {
+  if(charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), cfg);
+}
+
+function hBar(id, labels, vals, color, tooltipSuffix='', maxX=null) {
+  mk(id,{type:'bar',data:{labels,datasets:[{data:vals,backgroundColor:color+'99',borderColor:color,borderWidth:1,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw.toLocaleString('pt-BR')+tooltipSuffix}}},
+      scales:SCALE_DEF(maxX)}});
+}
+function vBar(id, labels, vals, color, tooltipSuffix='') {
+  mk(id,{type:'bar',data:{labels,datasets:[{data:vals,backgroundColor:color+'99',borderColor:color,borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw.toLocaleString('pt-BR')+tooltipSuffix}}},
+      scales:SCALE_DEF_V()}});
+}
+
+// ══════════════════════════════════════════════════
+// CALCULAR TOTAL FILTRADO
+// ══════════════════════════════════════════════════
+function calcTotal(heatmap, servsList) {
+  let t=0;
+  const sl = fServ==='all' ? servsList : (servsList.includes(fServ)?[fServ]:[]);
+  sl.forEach(s => {
+    const row = heatmap[s]; if(!row) return;
+    if(fMes==='all') row.forEach(v=>t+=v);
+    else t+=row[+fMes]||0;
+  });
+  return t;
+}
+
+// ══════════════════════════════════════════════════
+// GERAL: SERVIÇO
+// ══════════════════════════════════════════════════
+function drawServGeral() {
+  const hmap  = fClass==='A' ? HEATMAP_A : HEATMAP_GERAL;
+  const slist = fClass==='A' ? SERVICOS_A : SERVICOS;
+  const sl = fServ==='all' ? slist : (slist.includes(fServ) ? [fServ] : slist);
+  const entries = sl.map(s=>{
+    const row=hmap[s]||[];
+    const v = fMes==='all' ? row.reduce((a,b)=>a+b,0) : (row[+fMes]||0);
+    return {s,v,c:COR_SERV[s]||'#4a9eff'};
+  }).sort((a,b)=>b.v-a.v);
+  hBar('chartServGeral', entries.map(e=>e.s), entries.map(e=>e.v), '#4a9eff', ' tickets');
+  charts['chartServGeral'].data.datasets[0].backgroundColor = entries.map(e=>e.c+'99');
+  charts['chartServGeral'].data.datasets[0].borderColor = entries.map(e=>e.c);
+  charts['chartServGeral'].update();
+  document.getElementById('badgeServGeral').textContent = fMes==='all'?'todos os meses':MESES[+fMes];
+}
+
+// GERAL: SAZO
+function buildTabsSazo(containerId, servList, tabIdx, setTab, drawFn) {
+  const c = document.getElementById(containerId); c.innerHTML='';
+  const show = fServ==='all' ? servList.slice(0,6) : servList.filter(s=>s===fServ||fServ==='all').slice(0,6);
+  (fServ==='all'?servList.slice(0,6):[fServ]).forEach((s,i) => {
+    const b=document.createElement('button');
+    b.className='tab'+(i===tabIdx?' active':'');
+    b.textContent=s.split(' ').slice(0,2).join(' ');
+    b.onclick=()=>{ setTab(i); buildTabsSazo(containerId,servList,i,setTab,drawFn); drawFn(); };
+    c.appendChild(b);
+  });
+}
+function drawSazoGeral() {
+  const hmap  = fClass==='A' ? HEATMAP_A : HEATMAP_GERAL;
+  const slist = fClass==='A' ? SERVICOS_A : SERVICOS;
+  const sl = fServ==='all' ? slist.slice(0,6) : (slist.includes(fServ)?[fServ]:slist.slice(0,6));
+  const s  = sl[Math.min(sazoGeralTab,sl.length-1)];
+  const row = (hmap[s])||[];
+  const cor = COR_SERV[s]||'#4a9eff';
+  const data   = fMes==='all' ? row : [row[+fMes]||0];
+  const labels = fMes==='all' ? MESES : [MESES[+fMes]];
+  mk('chartSazoGeral',{type:'line',data:{labels,datasets:[{data,borderColor:cor,backgroundColor:cor+'18',borderWidth:2.5,pointRadius:4,pointBackgroundColor:cor,fill:true,tension:0.35}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw+' tickets'}}},
+      scales:SCALE_DEF_V()}});
+}
+
+// GERAL: CLASSES doughnut — reacts to class filter
+function drawClassesFiltered() {
+  const vals  = [11845,7850,5606];
+  const cors  = ['#f0c040','#4a9eff','#fb923c'];
+  const alphas = fClass==='all'
+    ? cors.map(c=>c)
+    : cors.map((c,i)=>(['A','B','C'][i]===fClass ? c : c+'44'));
+  mk('chartClasses',{type:'doughnut',
+    data:{labels:['Classe A','Classe B','Classe C'],datasets:[{data:vals,backgroundColor:alphas.map(c=>c+(c.length===7?'':''))
+      ,borderColor:fClass==='all'?'#0d0f14':alphas.map((c,i)=>['A','B','C'][i]===fClass?'#fff2':'#0d0f14'),borderWidth:3,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+      plugins:{legend:{display:true,position:'bottom',labels:{color:TC2,font:{family:'DM Sans',size:11},padding:14}},
+        tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw.toLocaleString('pt-BR')+' ('+((ctx.raw/25301)*100).toFixed(1)+'%)'}}}
+    }});
+}
+function drawClasses() { drawClassesFiltered(); }
+
+// ══════════════════════════════════════════════════
+// CLASSE A: SERVIÇO
+// ══════════════════════════════════════════════════
+function drawServA() {
+  const sl = fServ==='all' ? SERVICOS_A : (SERVICOS_A.includes(fServ)?[fServ]:SERVICOS_A);
+  const entries = sl.map(s=>{
+    const row=HEATMAP_A[s]||[];
+    const v = fMes==='all' ? row.reduce((a,b)=>a+b,0) : (row[+fMes]||0);
+    return {s,v,c:COR_SERV[s]||'#f0c040'};
+  }).sort((a,b)=>b.v-a.v);
+  hBar('chartServA', entries.map(e=>e.s), entries.map(e=>e.v), '#f0c040', ' tickets');
+  charts['chartServA'].data.datasets[0].backgroundColor = entries.map(e=>e.c+'99');
+  charts['chartServA'].data.datasets[0].borderColor = entries.map(e=>e.c);
+  charts['chartServA'].update();
+  document.getElementById('badgeServA').textContent = fMes==='all'?'todos os meses':MESES[+fMes];
+  document.getElementById('kTotalA').textContent = calcTotal(HEATMAP_A, SERVICOS_A).toLocaleString('pt-BR');
+}
+function drawSazoA() {
+  const sl = fServ==='all' ? SERVICOS_A.slice(0,6) : (SERVICOS_A.includes(fServ)?[fServ]:SERVICOS_A.slice(0,6));
+  const s  = sl[Math.min(sazoATab,sl.length-1)];
+  const row = HEATMAP_A[s]||[];
+  const cor = COR_SERV[s]||'#f0c040';
+  const data   = fMes==='all' ? row : [row[+fMes]||0];
+  const labels = fMes==='all' ? MESES : [MESES[+fMes]];
+  mk('chartSazoA',{type:'line',data:{labels,datasets:[{data,borderColor:cor,backgroundColor:cor+'18',borderWidth:2.5,pointRadius:4,pointBackgroundColor:cor,fill:true,tension:0.35}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw+' tickets'}}},
+      scales:SCALE_DEF_V()}});
+}
+
+// ══════════════════════════════════════════════════
+// CONSULTORES
+// ══════════════════════════════════════════════════
+function drawConsultores() {
+  const sortedVol  = CONSUL_NOMES.map((n,i)=>({n,v:CONSUL_TICKS[i]})).sort((a,b)=>b.v-a.v);
+  const sortedHora = CONSUL_NOMES.map((n,i)=>({n,v:CONSUL_HORAS[i]})).sort((a,b)=>b.v-a.v);
+  const sortedMin  = CONSUL_NOMES.map((n,i)=>({n,v:CONSUL_MIN[i]})).sort((a,b)=>b.v-a.v);
+
+  hBar('chartConsVol',  sortedVol.map(x=>x.n),  sortedVol.map(x=>x.v),  '#a78bfa', ' tickets');
+  hBar('chartConsHoras',sortedHora.map(x=>x.n), sortedHora.map(x=>x.v), '#fbbf24', 'h');
+  // color-coded by efficiency
+  const colors = sortedMin.map(x=>x.v>50?'#f87171':x.v>25?'#fbbf24':'#4ade80');
+  mk('chartConsMin',{type:'bar',data:{labels:sortedMin.map(x=>x.n),datasets:[{data:sortedMin.map(x=>x.v),backgroundColor:colors.map(c=>c+'99'),borderColor:colors,borderWidth:1,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw.toFixed(1)+' min/ticket'}}},
+      scales:SCALE_DEF()}});
+  hBar('chartEsforco', TOPS_ESF_LABELS, TOPS_ESF_VALS, '#f87171', ' min/ticket', 100);
+}
+
+// ══════════════════════════════════════════════════
+// TEMPOS
+// ══════════════════════════════════════════════════
+function drawTempos() {
+  const fCores = FAIXAS_VALS.map((v,i)=>i===0?'#2dd4bf':v>10?'#f87171':v>5?'#fbbf24':'#4a9eff');
+  mk('chartFaixasT',{type:'bar',data:{labels:FAIXAS_LABELS,datasets:[{data:FAIXAS_VALS,backgroundColor:fCores.map(c=>c+'99'),borderColor:fCores,borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw+'%'}}},
+      scales:{x:{...SCALE_DEF_V().x},y:{...SCALE_DEF_V().y,ticks:{...SCALE_DEF_V().y.ticks,callback:v=>v+'%'}}}}});
+
+  const tCores = TRAB_VALS.map((_,i)=>i<3?'#4ade80':i<5?'#fbbf24':'#f87171');
+  mk('chartTrabalhadoT',{type:'bar',data:{labels:TRAB_LABELS,datasets:[{data:TRAB_VALS,backgroundColor:tCores.map(c=>c+'99'),borderColor:tCores,borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw+'%'}}},
+      scales:{x:{...SCALE_DEF_V().x},y:{...SCALE_DEF_V().y,ticks:{...SCALE_DEF_V().y.ticks,callback:v=>v+'%'}}}}});
+
+  mk('chartDistAberto',{type:'bar',data:{labels:HIST_LABELS,datasets:[{data:HIST_VALS,backgroundColor:'#2dd4bf99',borderColor:'#2dd4bf',borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw.toLocaleString('pt-BR')+' tickets'}}},
+      scales:SCALE_DEF_V()}});
+
+  // sazo tempos (todos serviços somados)
+  const totais = MESES.map((_,i) => SERVICOS.reduce((acc,s) => acc+(HEATMAP_GERAL[s]||[])[i]||0, 0));
+  mk('chartSazoT',{type:'line',data:{labels:MESES,datasets:[{data:totais,borderColor:'#4a9eff',backgroundColor:'#4a9eff18',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#4a9eff',fill:true,tension:0.35}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw.toLocaleString('pt-BR')+' tickets'}}},
+      scales:SCALE_DEF_V()}});
+}
+
+// ══════════════════════════════════════════════════
+// BAR TABLES
+// ══════════════════════════════════════════════════
+function renderBarTable(id, rows, color, suffix='', dec=0) {
+  const max = Math.max(...rows.map(r=>r.v));
+  document.getElementById(id).innerHTML = rows.map(r => {
+    const pct = (r.v/max*100).toFixed(1);
+    const val = dec>0 ? r.v.toFixed(dec) : r.v.toLocaleString('pt-BR');
+    return `<div class="bar-row">
+      <div class="bar-label" title="${r.l}">${r.l}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-val">${val}${suffix}</div>
+    </div>`;
+  }).join('');
+}
+
+function drawBarTablesA() {
+  renderBarTable('barTitulosA',[
+    {l:'Link Indisponível',v:594},{l:'Sup. Supernova Ac.',v:471},{l:'WebFilter Liberação',v:192},
+    {l:'Instabilidade',v:134},{l:'Liberação de Site',v:85},{l:'VPN S2S Problema',v:80},
+    {l:'Backup Problema',v:80},{l:'FW Alteração',v:77},{l:'VPN Client Prob.',v:76},{l:'Rompimento',v:67}
+  ],'#fbbf24','',0);
+  renderBarTable('barConsultAVol', CONSUL_A_NOMES.map((n,i)=>({l:n,v:CONSUL_A_VOL[i]})).sort((a,b)=>b.v-a.v), '#a78bfa','',0);
+  renderBarTable('barConsultAHoras', CONSUL_A_NOMES.map((n,i)=>({l:n,v:CONSUL_A_HORAS[i]})).sort((a,b)=>b.v-a.v), '#fb923c','h',1);
+  renderBarTable('barConsultAMedia', CONSUL_A_NOMES.map((n,i)=>({l:n,v:CONSUL_A_MIN[i]})).sort((a,b)=>b.v-a.v), '#f87171','min',1);
+}
+
+function drawHorasServA() {
+  const data = [
+    {s:'Fortinet',h:2241.6},{s:'Acesso Dedicado',h:488.8},{s:'Backup',h:394.9},
+    {s:'Antivirus',h:221.7},{s:'E-mail',h:204.1},{s:'Cloud',h:185.0},
+    {s:'SonicWall',h:147.8},{s:'Hospedagem',h:140.0},{s:'WiFi+',h:121.7},{s:'Sup. Serv.',h:27.2}
+  ];
+  const filtered = fServ==='all' ? data : data.filter(d=>d.s===fServ||fServ==='all');
+  hBar('chartHorasServA', filtered.map(d=>d.s), filtered.map(d=>d.h), '#fb923c','h');
+  filtered.forEach((d,i)=>{
+    const c=COR_SERV[d.s]||'#fb923c';
+    charts['chartHorasServA'].data.datasets[0].backgroundColor[i]=c+'99';
+    charts['chartHorasServA'].data.datasets[0].borderColor[i]=c;
+  });
+  charts['chartHorasServA'].update();
+}
+
+function drawTitulosGeral() {
+  hBar('chartTitulosGeral', TOPS_VOL_LABELS, TOPS_VOL_VALS, '#fbbf24', ' tickets');
+}
+
+// ══════════════════════════════════════════════════
+// UPDATE HEADER
+// ══════════════════════════════════════════════════
+function updateHeader() {
+  // Pick correct heatmap based on class filter
+  const hmap  = fClass==='A' ? HEATMAP_A : HEATMAP_GERAL;
+  const slist = fClass==='A' ? SERVICOS_A : SERVICOS;
+  const total = calcTotal(hmap, slist);
+  document.getElementById('kTotal').textContent = total.toLocaleString('pt-BR');
+
+  // Sub-heading
+  const parts = [];
+  if(fClass!=='all') parts.push('Classe '+fClass);
+  if(fServ!=='all') parts.push(fServ);
+  if(fMes!=='all') parts.push(MESES[+fMes]+'/25');
+  document.getElementById('headerSub').textContent = parts.length
+    ? parts.join(' · ')+' · '+total.toLocaleString('pt-BR')+' tickets'
+    : '25.164 tickets fechados · jan–dez 2025';
+
+  // Filter banner + pills
+  const banner = document.getElementById('filterBanner');
+  const pillsEl = document.getElementById('filterPills');
+  const resetBtn = document.getElementById('btnReset');
+  if(parts.length === 0) {
+    banner.classList.remove('visible');
+    resetBtn.style.display = 'none';
+  } else {
+    banner.classList.add('visible');
+    resetBtn.style.display = '';
+    let pills = '';
+    if(fClass!=='all') pills += `<span class="fpill cls ${fClass}">Classe ${fClass}</span>`;
+    if(fServ!=='all')  pills += `<span class="fpill serv">${fServ}</span>`;
+    if(fMes!=='all')   pills += `<span class="fpill mes">${MESES[+fMes]}/25</span>`;
+    pillsEl.innerHTML = pills;
+  }
+}
+
+// ══════════════════════════════════════════════════
+// FAIXAS + TRAB (header charts)
+// ══════════════════════════════════════════════════
+function drawFaixasMain() {
+  const fC = FAIXAS_VALS.map((v,i)=>i===0?'#2dd4bf':v>10?'#f87171':v>5?'#fbbf24':'#4a9eff');
+  mk('chartFaixas',{type:'bar',data:{labels:FAIXAS_LABELS,datasets:[{data:FAIXAS_VALS,backgroundColor:fC.map(c=>c+'99'),borderColor:fC,borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw+'%'}}},
+      scales:{x:{...SCALE_DEF_V().x},y:{...SCALE_DEF_V().y,ticks:{color:TC,font:{size:10},callback:v=>v+'%'}}}}});
+  const tC = TRAB_VALS.map((_,i)=>i<3?'#4ade80':i<5?'#fbbf24':'#f87171');
+  mk('chartTrabalhado',{type:'bar',data:{labels:TRAB_LABELS,datasets:[{data:TRAB_VALS,backgroundColor:tC.map(c=>c+'99'),borderColor:tC,borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP_DEF,callbacks:{label:ctx=>' '+ctx.raw+'%'}}},
+      scales:{x:{...SCALE_DEF_V().x},y:{...SCALE_DEF_V().y,ticks:{color:TC,font:{size:10},callback:v=>v+'%'}}}}});
+}
+
+// ══════════════════════════════════════════════════
+// UPDATE ALL
+// ══════════════════════════════════════════════════
+function updateAll() {
+  updateHeader();
+  // Visão Geral charts — react to all filters including class
+  const slistGeral = fClass==='A' ? SERVICOS_A : SERVICOS;
+  drawServGeral();
+  buildTabsSazo('tabsSazoGeral', slistGeral, sazoGeralTab, v=>{sazoGeralTab=v;}, drawSazoGeral);
+  drawSazoGeral();
+  // Doughnut de classes — highlight selected
+  drawClassesFiltered();
+  // Classe A section charts
+  drawServA();
+  buildTabsSazo('tabsSazoA', SERVICOS_A, sazoATab, v=>{sazoATab=v;}, drawSazoA);
+  drawSazoA();
+  drawHorasServA();
+  drawBarTablesA();
+  // Update Classe A section KPI
+  document.getElementById('kTotalA').textContent = calcTotal(HEATMAP_A, SERVICOS_A).toLocaleString('pt-BR');
+  // Update section descriptions
+  const mesLabel = fMes==='all' ? 'jan–dez' : MESES[+fMes];
+  document.getElementById('descA').textContent =
+    fMes!=='all' || fServ!=='all'
+      ? 'Clientes estratégicos · filtro ativo: '+(fServ!=='all'?fServ+' · ':'')+mesLabel+'/25'
+      : 'Clientes estratégicos · 46,6% do total · filtros ativos no topo';
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+updateAll();
+drawClassesFiltered();
+drawTitulosGeral();
+drawFaixasMain();
+drawConsultores();
+drawTempos();
+buildTabsSazo('tabsSazoT', SERVICOS, sazoTTab, v=>{sazoTTab=v;}, ()=>{});
+</script>
+</body>
+</html>
