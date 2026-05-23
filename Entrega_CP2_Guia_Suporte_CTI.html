@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base de Conhecimento FAQ — CTI Brasil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#F5F4F0;
+  --surface:#FFFFFF;
+  --surface2:#ECEAE4;
+  --border:#D4D1C8;
+  --border2:#B8B5AC;
+  --text:#1C1B18;
+  --text2:#5A5852;
+  --text3:#8C8A84;
+  --accent:#1A4A8F;
+  --accent-light:#E6EEF9;
+  --accent2:#0F6E56;
+  --accent2-light:#E1F5EE;
+  --warn:#854F0B;
+  --warn-light:#FAEEDA;
+  --danger:#A32D2D;
+  --danger-light:#FCEBEB;
+  --sans:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --serif:'IBM Plex Serif',serif;
+  --r:6px;
+  --r2:10px;
+}
+
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#16150F;
+    --surface:#201F18;
+    --surface2:#2A2920;
+    --border:#3A3830;
+    --border2:#504E44;
+    --text:#F0EDE6;
+    --text2:#A8A49A;
+    --text3:#6C6A62;
+    --accent:#5B8FD4;
+    --accent-light:#0C2040;
+    --accent2:#1D9E75;
+    --accent2-light:#04342C;
+    --warn:#EF9F27;
+    --warn-light:#412402;
+    --danger:#E24B4A;
+    --danger-light:#501313;
+  }
+}
+
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;min-height:100vh}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:260px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.main{flex:1;min-width:0;padding:0 0 80px}
+
+/* SIDEBAR */
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.sidebar-title{font-size:16px;font-weight:600;color:var(--text);line-height:1.3}
+
+.sidebar-search{padding:14px 16px;border-bottom:1px solid var(--border)}
+.sidebar-search input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:7px 12px 7px 32px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none}
+.sidebar-search input::placeholder{color:var(--text3)}
+.search-wrap{position:relative}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+
+.nav-section{padding:12px 0 4px}
+.nav-label{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:0 20px 6px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 20px;cursor:pointer;transition:background .15s;font-size:13px;color:var(--text2);border-left:3px solid transparent;text-decoration:none}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-light);color:var(--accent);border-left-color:var(--accent);font-weight:500}
+.nav-item .badge{margin-left:auto;background:var(--surface2);color:var(--text3);font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:20px}
+.nav-item.active .badge{background:var(--accent);color:#fff}
+
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.version-tag{font-family:var(--mono);font-size:11px;color:var(--text3)}
+
+/* HERO */
+.hero{background:var(--surface);border-bottom:1px solid var(--border);padding:40px 48px 36px}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.hero-title{font-family:var(--serif);font-size:32px;font-weight:400;line-height:1.2;color:var(--text);margin-bottom:10px}
+.hero-sub{font-size:15px;color:var(--text2);max-width:600px;margin-bottom:28px;line-height:1.7}
+.stats-row{display:flex;gap:16px;flex-wrap:wrap}
+.stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:14px 20px;min-width:130px}
+.stat-num{font-family:var(--mono);font-size:26px;font-weight:500;color:var(--accent);line-height:1}
+.stat-label{font-size:12px;color:var(--text3);margin-top:4px}
+
+/* CONTENT */
+.content{padding:40px 48px}
+.section{display:none}
+.section.active{display:block}
+
+/* SECTION HEADERS */
+.sec-head{margin-bottom:28px}
+.sec-num{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:.06em;margin-bottom:6px}
+.sec-title{font-size:22px;font-weight:600;color:var(--text);margin-bottom:8px}
+.sec-lead{font-size:15px;color:var(--text2);line-height:1.7;max-width:640px}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px 24px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card-body{font-size:14px;color:var(--text2);line-height:1.65}
+
+/* INFO BOX */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.info-cell{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.info-key{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:500;letter-spacing:.05em;margin-bottom:4px}
+.info-val{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* STEP */
+.steps{counter-reset:steps;display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-num{counter-increment:steps;width:28px;height:28px;flex-shrink:0;border-radius:50%;background:var(--accent-light);color:var(--accent);font-family:var(--mono);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.step-num::before{content:counter(steps)}
+.step-content h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.step-content p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* VARIABLES TABLE */
+.var-table{width:100%;border-collapse:collapse;font-size:13px}
+.var-table th{background:var(--surface2);font-weight:500;font-size:12px;color:var(--text2);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-family:var(--sans)}
+.var-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+.var-table tr:last-child td{border-bottom:none}
+.var-table tr:hover td{background:var(--surface2)}
+.mono-tag{font-family:var(--mono);font-size:12px;background:var(--accent-light);color:var(--accent);padding:2px 7px;border-radius:4px;white-space:nowrap}
+.optional-tag{font-family:var(--mono);font-size:10px;background:var(--warn-light);color:var(--warn);padding:2px 6px;border-radius:4px;margin-left:6px}
+
+/* TOPICS GRID */
+.topics-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.topic-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;cursor:pointer;transition:border-color .2s,background .2s}
+.topic-card:hover{border-color:var(--accent);background:var(--accent-light)}
+.topic-card.selected{border-color:var(--accent);background:var(--accent-light)}
+.topic-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.topic-name{font-size:14px;font-weight:600;color:var(--text)}
+.ticket-badge{font-family:var(--mono);font-size:11px;font-weight:500;background:var(--surface2);color:var(--text3);padding:3px 8px;border-radius:20px;flex-shrink:0}
+.topic-trigger{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:8px}
+.topic-tags{display:flex;flex-wrap:wrap;gap:4px}
+.subtag{font-size:11px;background:var(--surface2);color:var(--text3);padding:2px 7px;border-radius:4px;font-family:var(--mono)}
+
+/* DETAIL PANEL */
+.detail-panel{background:var(--surface);border:1px solid var(--accent);border-radius:var(--r2);padding:24px;margin-bottom:20px;display:none}
+.detail-panel.open{display:block;animation:slideIn .2s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.detail-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.detail-meta{font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:16px}
+.detail-section-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-family:var(--mono)}
+.detail-section-body{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:16px}
+.close-btn{float:right;background:none;border:1px solid var(--border);border-radius:var(--r);padding:4px 10px;font-size:12px;color:var(--text3);cursor:pointer}
+.close-btn:hover{border-color:var(--border2);color:var(--text)}
+
+/* CHART */
+.bar-chart{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:flex;align-items:center;gap:10px}
+.bar-label{font-size:12px;color:var(--text2);width:160px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;background:var(--surface2);border-radius:4px;height:24px;overflow:hidden}
+.bar-fill{height:100%;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;transition:width .6s ease;min-width:32px}
+.bar-fill span{font-family:var(--mono);font-size:11px;font-weight:500;color:#fff}
+
+/* BEST PRACTICES */
+.practice-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.practice-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px}
+.practice-block.do{border-top:3px solid var(--accent2)}
+.practice-block.dont{border-top:3px solid var(--danger)}
+.practice-head{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.do .practice-head{color:var(--accent2)}
+.dont .practice-head{color:var(--danger)}
+.practice-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.practice-list li{font-size:13px;color:var(--text2);line-height:1.5;padding-left:16px;position:relative}
+.practice-list li::before{position:absolute;left:0;font-size:12px}
+.do .practice-list li::before{content:"✓";color:var(--accent2)}
+.dont .practice-list li::before{content:"✗";color:var(--danger)}
+
+/* RESPONSIBILITIES */
+.resp-table{width:100%;border-collapse:collapse;font-size:13px}
+.resp-table td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top}
+.resp-table tr:last-child td{border-bottom:none}
+.resp-role{font-weight:600;color:var(--text);white-space:nowrap;padding-right:24px}
+.resp-desc{color:var(--text2)}
+
+/* INDICATORS */
+.indicator-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ind-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px}
+.ind-icon{font-size:20px;color:var(--accent);margin-bottom:8px}
+.ind-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.ind-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* ALERT */
+.alert{border-radius:var(--r);padding:12px 16px;font-size:13px;line-height:1.6;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start}
+.alert-warn{background:var(--warn-light);color:var(--warn);border:1px solid var(--warn)}
+.alert-info{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent)}
+
+/* SEARCH RESULTS */
+.search-results{display:none;padding:40px 48px}
+.sr-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px 20px;margin-bottom:12px;cursor:pointer}
+.sr-item:hover{border-color:var(--accent)}
+.sr-section{font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:4px}
+.sr-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.sr-preview{font-size:13px;color:var(--text2)}
+.sr-highlight{background:var(--warn-light);color:var(--warn);padding:0 2px;border-radius:2px}
+
+/* PROGRESS */
+.progress-bar{height:3px;background:var(--accent);transition:width .3s ease}
+
+/* MOBILE */
+.mobile-menu-btn{display:none;position:fixed;bottom:20px;right:20px;width:48px;height:48px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:20px;cursor:pointer;z-index:100;align-items:center;justify-content:center}
+
+@media(max-width:800px){
+  .sidebar{position:fixed;left:-260px;z-index:50;transition:left .25s;height:100vh}
+  .sidebar.open{left:0}
+  .main{margin-left:0}
+  .content,.hero{padding:24px 20px}
+  .topics-grid,.practice-cols,.indicator-grid,.info-grid{grid-template-columns:1fr}
+  .mobile-menu-btn{display:flex}
+  .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40}
+  .mobile-overlay.active{display:block}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">CTI Brasil · Suporte</div>
+    <div class="sidebar-title">Base de Conhecimento FAQ</div>
+  </div>
+  <div class="sidebar-search">
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search-input" placeholder="Buscar no guia…" autocomplete="off">
+    </div>
+  </div>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-label">Visão Geral</div>
+      <a class="nav-item active" data-section="objetivo">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Objetivo
+      </a>
+      <a class="nav-item" data-section="estrutura">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+        Estrutura da Planilha
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Atendimento</div>
+      <a class="nav-item" data-section="uso">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Como Usar
+      </a>
+      <a class="nav-item" data-section="temas">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Temas Disponíveis <span class="badge">12</span>
+      </a>
+      <a class="nav-item" data-section="praticas">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Boas Práticas
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Gestão</div>
+      <a class="nav-item" data-section="manutencao">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Manutenção
+      </a>
+      <a class="nav-item" data-section="indicadores">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Indicadores
+      </a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="version-tag">v1.0 · Maio 2026 · Uso Interno</div>
+  </div>
+</aside>
+
+<!-- MOBILE OVERLAY -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeSidebar()"></div>
+
+<!-- MAIN -->
+<main class="main">
+  <div style="height:3px;background:var(--surface2)"><div class="progress-bar" id="progress" style="width:8%"></div></div>
+
+  <!-- HERO -->
+  <div class="hero" id="hero-block">
+    <div class="hero-eyebrow">Manual de Uso · Equipe de Suporte Técnico</div>
+    <div class="hero-title">Base de Conhecimento FAQ</div>
+    <div class="hero-sub">Modelos de resposta padronizados para os principais chamados do suporte técnico CTI Brasil. Use este guia para identificar o tema correto, personalizar o modelo e garantir consistência no atendimento.</div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Temas mapeados</div></div>
+      <div class="stat-card"><div class="stat-num">684</div><div class="stat-label">Tickets em 2025</div></div>
+      <div class="stat-card"><div class="stat-num">8 min</div><div class="stat-label">Economia por chamado</div></div>
+      <div class="stat-card"><div class="stat-num">100%</div><div class="stat-label">Uso interno</div></div>
+    </div>
+  </div>
+
+  <!-- SEARCH RESULTS -->
+  <div class="search-results" id="search-results">
+    <div class="sec-head">
+      <div class="sec-num">PESQUISA</div>
+      <div class="sec-title" id="search-results-title">Resultados</div>
+    </div>
+    <div id="search-results-list"></div>
+  </div>
+
+  <div class="content" id="main-content">
+
+    <!-- 1. OBJETIVO -->
+    <div class="section active" id="sec-objetivo">
+      <div class="sec-head">
+        <div class="sec-num">SEÇÃO 01</div>
+        <div class="sec-title">Objetivo</div>
+        <div class="sec-lead">Entenda para que serve esta base e como ela beneficia a operação de suporte.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          Para que serve
+        </div>
+        <div class="card-body">
+          Este documento descreve como a planilha <code style="font-family:var(--mono);font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">faq_respostas.xlsx</code> deve ser utilizada pela equipe de suporte técnico no atendimento ao cliente. O arquivo concentra modelos de resposta padronizados para as principais categorias de chamados, permitindo respostas mais rápidas, consistentes e de alta qualidade.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Impacto esperado
+        </div>
+        <div class="card-body">
+          O uso correto desta base <strong>reduz o tempo médio de resolução por chamado em 8 minutos</strong> e garante que os clientes recebam orientações precisas independentemente de qual analista esteja em atendimento. Com 684 tickets registrados em 2025, a base cobre os cenários mais recorrentes da operação.
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <svg width="16" height="16" style="flex-shrink:0;margin-top:1px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>Os modelos são ponto de partida, não resposta pronta. O julgamento do analista continua sendo indispensável para adaptar a comunicação à realidade de cada chamado.</span>
+      </div>
+    </div>
+
+    <!-- 2. ESTRUTURA -->
+    <div class="section" id="sec-estrutura">
+      <div class="sec-head">
+        <div class="sec-num">SEÇÃO 02</div>
+        <div class="sec-title">Estrutura da Planilha</div>
+        <div class="sec-lead">A aba <code style="font-family:var(--mono);font-size:13px">FAQ</code> contém seis colunas com funções distintas.</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-cell"><div class="info-key">Tema</div><div class="info-val">Categoria principal do chamado (ex: SD-WAN, VPN, Webmail)</div></div>
+        <div class="info-cell"><div class="info-key">Quando usar (gatilho)</div><div class="info-val">Cenários e palavras-chave que indicam qual modelo usar</div></div>
+        <div class="info-cell"><div class="info-key">Sub-temas cobertos</div><div class="info-val">Situações específicas contempladas pelo modelo</div></div>
+        <div class="info-cell"><div class="info-key">Modelo de resposta</div><div class="info-val">Texto base para ser adaptado e enviado ao cliente</div></div>
+        <div class="info-cell"><div class="info-key">Tickets na base (2025)</div><div class="info-val">Volume histórico de chamados para aquele tema em 2025</div></div>
+        <div class="info-cell"><div class="info-key">Economia estimada (min)</div><div class="info-val">Redução estimada de tempo por chamado ao usar o modelo</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Navegação rápida na planilha</div>
+        <div class="card-body">Use <code style="font-family:var(--mono);font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">Ctrl+F</code> (ou <code style="font-family:var(--mono);font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">⌘+F</code> no Mac) para buscar pelo tema ou palavra-chave diretamente na planilha. A coluna "Quando usar" é o melhor ponto de entrada para identificar o modelo certo.</div>
+      </div>
+    </div>
+
+    <!-- 3. COMO USAR -->
+    <div class="section" id="sec-uso">
+      <div class="sec-head">
+        <div class="sec-num">SEÇÃO 03</div>
+        <div class="sec-title">Como Usar no Atendimento</div>
+        <div class="sec-lead">Siga o processo em quatro etapas para cada chamado recebido.</div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-content">
+              <h4>Identificar o tema</h4>
+              <p>Leia a solicitação do cliente e identifique o tema com base nas palavras-chave. Consulte a coluna "Quando usar (gatilho)" na planilha. Exemplos: "link lento" → SD-WAN; "não acessa VPN" → VPN; "WhatsApp bloqueado" → WebFilter.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-content">
+              <h4>Localizar o modelo</h4>
+              <p>Encontre a linha do tema na planilha e copie o conteúdo da coluna "Modelo de resposta".</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-content">
+              <h4>Substituir os campos variáveis</h4>
+              <p>Todos os marcadores entre chaves <code style="font-family:var(--mono);font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">{CAMPO}</code> devem ser substituídos pelos dados reais do chamado. Nenhum marcador pode permanecer no texto final.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-content">
+              <h4>Revisar e enviar</h4>
+              <p>Leia o texto completo antes de enviar. Verifique se os blocos condicionais foram removidos corretamente e se o tom está adequado ao perfil do cliente.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-title" style="font-size:16px;margin-bottom:14px">Campos variáveis do modelo</div>
+      <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--r2);margin-bottom:24px">
+        <table class="var-table">
+          <thead><tr><th>Variável</th><th>O que preencher</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td><span class="mono-tag">{NOME}</span></td><td>Nome do contato do cliente</td><td style="color:var(--text3);font-size:12px">Obrigatório</td></tr>
+            <tr><td><span class="mono-tag">{EMAIL}</span></td><td>Endereço de e-mail em questão</td><td style="color:var(--text3);font-size:12px">Obrigatório</td></tr>
+            <tr><td><span class="mono-tag">{MODELO/UNIDADE}</span></td><td>Modelo do equipamento ou nome da unidade</td><td style="color:var(--text3);font-size:12px">Obrigatório</td></tr>
+            <tr><td><span class="mono-tag">{USUARIO/TUNNEL}</span></td><td>Login do usuário ou nome do túnel VPN</td><td style="color:var(--text3);font-size:12px">Obrigatório</td></tr>
+            <tr><td><span class="mono-tag">{OPERADORA}</span></td><td>Nome da operadora de internet do cliente</td><td style="color:var(--text3);font-size:12px">Obrigatório</td></tr>
+            <tr><td><span class="mono-tag">{GATEWAY}</span></td><td>IP do gateway de VPN</td><td style="color:var(--text3);font-size:12px">Obrigatório</td></tr>
+            <tr><td><span class="mono-tag">{SERVIDOR_MAIL}</span></td><td>Hostname do servidor de e-mail</td><td style="color:var(--text3);font-size:12px">Obrigatório</td></tr>
+            <tr><td><span class="mono-tag">{SE_...}</span> <span class="optional-tag">condicional</span></td><td>Blocos opcionais — incluir apenas se a situação se aplicar. Remover completamente caso contrário.</td><td style="color:var(--text3);font-size:12px">Opcional</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warn">
+        <svg width="16" height="16" style="flex-shrink:0;margin-top:1px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span><strong>Blocos condicionais</strong> como <code style="font-family:var(--mono);font-size:12px">{SE_LINK_LENTO}</code> ou <code style="font-family:var(--mono);font-size:12px">{SE_QUER_MUDAR_PRINCIPAL}</code> devem ser removidos por completo quando a situação não se aplica ao chamado atual.</span>
+      </div>
+    </div>
+
+    <!-- 4. TEMAS -->
+    <div class="section" id="sec-temas">
+      <div class="sec-head">
+        <div class="sec-num">SEÇÃO 04</div>
+        <div class="sec-title">Temas Disponíveis</div>
+        <div class="sec-lead">Clique em um tema para ver detalhes, gatilhos e sub-temas cobertos.</div>
+      </div>
+
+      <div id="topic-detail" class="detail-panel">
+        <button class="close-btn" onclick="closeDetail()">Fechar ✕</button>
+        <div class="detail-title" id="dt-title"></div>
+        <div class="detail-meta" id="dt-meta"></div>
+        <div class="detail-section-label">Quando usar (gatilho)</div>
+        <div class="detail-section-body" id="dt-trigger"></div>
+        <div class="detail-section-label">Sub-temas cobertos</div>
+        <div class="detail-section-body" id="dt-subtemas"></div>
+      </div>
+
+      <div class="topics-grid" id="topics-grid"></div>
+
+      <div class="sec-title" style="font-size:16px;margin-bottom:14px;margin-top:8px">Volume de tickets por tema (2025)</div>
+      <div class="bar-chart" id="bar-chart"></div>
+    </div>
+
+    <!-- 5. BOAS PRÁTICAS -->
+    <div class="section" id="sec-praticas">
+      <div class="sec-head">
+        <div class="sec-num">SEÇÃO 05</div>
+        <div class="sec-title">Boas Práticas de Uso</div>
+        <div class="sec-lead">Orientações para garantir qualidade no uso dos modelos de resposta.</div>
+      </div>
+      <div class="practice-cols">
+        <div class="practice-block do">
+          <div class="practice-head">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            O que fazer
+          </div>
+          <ul class="practice-list">
+            <li>Sempre personalizar o modelo antes de enviar — nunca copiar e colar sem revisar</li>
+            <li>Verificar se todos os campos variáveis foram substituídos corretamente</li>
+            <li>Remover os blocos condicionais que não se aplicam ao chamado</li>
+            <li>Adaptar o tom se o cliente demonstrou preferência por linguagem mais informal</li>
+            <li>Consultar "Sub-temas cobertos" para confirmar se o modelo abrange a dúvida</li>
+          </ul>
+        </div>
+        <div class="practice-block dont">
+          <div class="practice-head">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            O que evitar
+          </div>
+          <ul class="practice-list">
+            <li>Enviar o modelo com variáveis não preenchidas (ex: deixar <code style="font-family:var(--mono);font-size:11px">{NOME}</code> no texto)</li>
+            <li>Usar um modelo de tema errado por falta de atenção ao gatilho</li>
+            <li>Ignorar os alertas ⚠️ presentes em alguns modelos — indicam pontos críticos</li>
+            <li>Alterar o conteúdo técnico do modelo sem validação prévia da equipe</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <svg width="16" height="16" style="flex-shrink:0;margin-top:1px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>Em caso de dúvida sobre qual modelo aplicar ou se o modelo cobre o cenário do chamado, acione o líder de suporte antes de responder ao cliente.</span>
+      </div>
+    </div>
+
+    <!-- 6. MANUTENÇÃO -->
+    <div class="section" id="sec-manutencao">
+      <div class="sec-head">
+        <div class="sec-num">SEÇÃO 06</div>
+        <div class="sec-title">Manutenção e Atualização</div>
+        <div class="sec-lead">A planilha é um documento vivo e deve evoluir com os processos da empresa.</div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Responsabilidades</div>
+        <table class="resp-table">
+          <tbody>
+            <tr><td class="resp-role">Analistas de Suporte</td><td class="resp-desc">Identificar lacunas: temas não cobertos ou modelos desatualizados</td></tr>
+            <tr><td class="resp-role">Líder de Suporte</td><td class="resp-desc">Revisar sugestões de melhoria e aprovar alterações nos modelos</td></tr>
+            <tr><td class="resp-role">Engenharia / Produto</td><td class="resp-desc">Validar precisão técnica dos modelos antes de publicação</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Processo de atualização</div>
+        <div class="steps">
+          <div class="step"><div class="step-num"></div><div class="step-content"><h4>Identificar</h4><p>Detectar necessidade de novo modelo ou ajuste em modelo existente.</p></div></div>
+          <div class="step"><div class="step-num"></div><div class="step-content"><h4>Registrar</h4><p>Documentar a proposta de alteração com justificativa clara.</p></div></div>
+          <div class="step"><div class="step-num"></div><div class="step-content"><h4>Revisar</h4><p>Submeter para revisão do líder de suporte.</p></div></div>
+          <div class="step"><div class="step-num"></div><div class="step-content"><h4>Publicar</h4><p>Após aprovação, atualizar a planilha e comunicar a equipe.</p></div></div>
+          <div class="step"><div class="step-num"></div><div class="step-content"><h4>Registrar versão</h4><p>Anotar versão e data da alteração em aba de histórico.</p></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Critérios para criar novos modelos</div>
+        <div class="card-body">
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;padding:0">
+            <li style="padding-left:18px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span> O mesmo tipo de dúvida aparece repetidamente sem modelo disponível</li>
+            <li style="padding-left:18px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span> Nova funcionalidade ou produto é lançado com volume significativo de chamados</li>
+            <li style="padding-left:18px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span> Mudanças em sistemas internos tornam modelos existentes parcialmente inválidos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. INDICADORES -->
+    <div class="section" id="sec-indicadores">
+      <div class="sec-head">
+        <div class="sec-num">SEÇÃO 07</div>
+        <div class="sec-title">Indicadores de Eficiência</div>
+        <div class="sec-lead">O uso consistente da base FAQ permite acompanhar as métricas abaixo.</div>
+      </div>
+      <div class="indicator-grid">
+        <div class="ind-card">
+          <div class="ind-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="ind-name">Cobertura da Base</div>
+          <div class="ind-desc">% de chamados que possuem modelo disponível na planilha</div>
+        </div>
+        <div class="ind-card">
+          <div class="ind-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="ind-name">Tempo Médio de Resposta</div>
+          <div class="ind-desc">Redução esperada de 8 min por chamado com uso do modelo</div>
+        </div>
+        <div class="ind-card">
+          <div class="ind-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="ind-name">Consistência de Resposta</div>
+          <div class="ind-desc">Uniformidade na qualidade das respostas entre analistas</div>
+        </div>
+        <div class="ind-card">
+          <div class="ind-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+          </div>
+          <div class="ind-name">Taxa de Reabertura</div>
+          <div class="ind-desc">Chamados reabertos indicam modelo incompleto ou mal aplicado</div>
+        </div>
+        <div class="ind-card">
+          <div class="ind-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div class="ind-name">Tickets por Tema</div>
+          <div class="ind-desc">Volume por categoria orienta priorização de novos modelos</div>
+        </div>
+        <div class="ind-card" style="background:var(--accent-light);border-color:var(--accent)">
+          <div class="ind-icon" style="color:var(--accent)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="ind-name" style="color:var(--accent)">Meta operacional</div>
+          <div class="ind-desc" style="color:var(--accent)">100% dos chamados cobertos usam modelo padronizado</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+</div>
+
+<!-- Mobile button -->
+<button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Menu">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<script>
+const topics = [
+  {tema:"SD-WAN / Links",tickets:75,trigger:"Cliente pergunta sobre qualidade ou velocidade dos links, link principal/secundário, redundância ou SD-WAN",subtemas:"Redundância, upload/download baixo, link não está como principal, regras de direcionamento"},
+  {tema:"Webmail / E-mail",tickets:129,trigger:"Dúvida sobre conta de e-mail: configuração no Outlook, protocolo bloqueado, espaço cheio, alias/apelido",subtemas:"Protocolo bloqueado (IMAP/POP), liberar espaço na caixa, conta é apelido (alias), configuração no Outlook"},
+  {tema:"Interfaces / Equipamento",tickets:95,trigger:"Equipamento offline no painel, dúvida sobre conexão PPPOE, lentidão, perda de pacotes em navegação",subtemas:"Equipamento aparece offline, perda de pacotes/lentidão, dúvida PPPOE, link fora"},
+  {tema:"VPN",tickets:78,trigger:"Usuário sem acesso à VPN, túnel caído, dúvida sobre gateway/chave pré-compartilhada, VPN não conecta",subtemas:"Usuário sem acesso, VPN não conecta (local), túnel secundário em standby, gateway/chave pré-compartilhada"},
+  {tema:"NAT / Acesso Externo",tickets:27,trigger:"Configurar acesso externo a DVR, câmera, servidor ou sistema interno via NAT/Port Forwarding",subtemas:"Acesso externo DVR/câmera, verificar IPs configurados, criar novo direcionamento"},
+  {tema:"WebFilter / Liberação",tickets:57,trigger:"Liberação de site/URL, desbloqueio de categoria, WhatsApp bloqueado, criar regra por horário",subtemas:"Liberação de URL, desbloqueio de categoria, WhatsApp bloqueado, regra por horário (schedule)"},
+  {tema:"DHCP / DNS",tickets:32,trigger:"Dúvida sobre range DHCP, reserva de IP por MAC, apontamentos DNS, resolução de domínio",subtemas:"Range DHCP, reserva de IP (MAC), apontamento DNS, acesso de terceiros ao DNS"},
+  {tema:"Logs / Monitoramento",tickets:34,trigger:"Solicitar relatório de navegação, consumo de banda, tempo de conexão VPN, monitoramento de tráfego em tempo real",subtemas:"Relatório de navegação, consumo de banda, tempo de conexão VPN, monitoramento em tempo real"},
+  {tema:"Autenticação / Acesso",tickets:49,trigger:"Captive Portal WiFi, usuário que não desconecta/precisa reautenticar, dispositivo comprometido, credenciais",subtemas:"Captive Portal/WiFi persistente, dispositivo comprometido, alteração de senha/credencial, SSL VPN/AD"},
+  {tema:"Gerência / Portal",tickets:64,trigger:"Dúvida sobre uso do MyPortal, CVE/vulnerabilidade publicada, painel do cliente, acesso remoto via portal",subtemas:"CVE/Vulnerabilidade Fortinet, dúvida MyPortal, IP de nova unidade, vazamento de senhas"},
+  {tema:"Backup",tickets:30,trigger:"Status de backup, solicitar restauração, recomendação de ferramenta, agendamento, localização dos dados",subtemas:"Verificar status, solicitar restauração, recomendação Veeam, localização dos backups"},
+  {tema:"Antivírus / Segurança",tickets:14,trigger:"Status do antivírus, alerta de dispositivo comprometido, Kaspersky, detecção de ameaça",subtemas:"Status do AV, dispositivo comprometido, alerta de ameaça"},
+];
+
+const maxTickets = Math.max(...topics.map(t=>t.tickets));
+
+// Build topics grid
+const grid = document.getElementById('topics-grid');
+topics.forEach((t,i)=>{
+  const card = document.createElement('div');
+  card.className='topic-card';
+  card.dataset.idx=i;
+  card.innerHTML=`
+    <div class="topic-header">
+      <div class="topic-name">${t.tema}</div>
+      <div class="ticket-badge">${t.tickets} tickets</div>
+    </div>
+    <div class="topic-trigger">${t.trigger.length>80?t.trigger.slice(0,80)+'…':t.trigger}</div>
+    <div class="topic-tags">${t.subtemas.split(',').map(s=>`<span class="subtag">${s.trim()}</span>`).join('')}</div>
+  `;
+  card.addEventListener('click',()=>showDetail(i,card));
+  grid.appendChild(card);
+});
+
+// Build bar chart
+const chart = document.getElementById('bar-chart');
+const sorted = [...topics].sort((a,b)=>b.tickets-a.tickets);
+sorted.forEach(t=>{
+  const pct=Math.round((t.tickets/maxTickets)*100);
+  const row=document.createElement('div');
+  row.className='bar-row';
+  row.innerHTML=`
+    <div class="bar-label">${t.tema}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct}%"><span>${t.tickets}</span></div></div>
+  `;
+  chart.appendChild(row);
+});
+
+function showDetail(i,card){
+  document.querySelectorAll('.topic-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+  const t=topics[i];
+  document.getElementById('dt-title').textContent=t.tema;
+  document.getElementById('dt-meta').textContent=`${t.tickets} tickets em 2025 · 8 min de economia estimada por chamado`;
+  document.getElementById('dt-trigger').textContent=t.trigger;
+  const panel=document.getElementById('topic-detail');
+  const subList=document.getElementById('dt-subtemas');
+  subList.innerHTML=t.subtemas.split(',').map(s=>`<span style="display:inline-block;background:var(--surface2);color:var(--text2);font-size:12px;padding:3px 8px;border-radius:4px;margin:2px;font-family:var(--mono)">${s.trim()}</span>`).join('');
+  panel.classList.add('open');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closeDetail(){
+  document.getElementById('topic-detail').classList.remove('open');
+  document.querySelectorAll('.topic-card').forEach(c=>c.classList.remove('selected'));
+}
+
+// Navigation
+const sections = {
+  objetivo:'sec-objetivo',estrutura:'sec-estrutura',uso:'sec-uso',
+  temas:'sec-temas',praticas:'sec-praticas',manutencao:'sec-manutencao',indicadores:'sec-indicadores'
+};
+const progress = {objetivo:8,estrutura:22,uso:38,temas:54,praticas:68,manutencao:82,indicadores:100};
+
+document.querySelectorAll('.nav-item[data-section]').forEach(item=>{
+  item.addEventListener('click',e=>{
+    e.preventDefault();
+    const sec=item.dataset.section;
+    navigate(sec);
+    closeSidebar();
+  });
+});
+
+function navigate(sec){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-section="${sec}"]`).classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(sections[sec]).classList.add('active');
+  document.getElementById('progress').style.width=progress[sec]+'%';
+  document.getElementById('search-results').style.display='none';
+  document.getElementById('main-content').style.display='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Search
+const searchData = [
+  {section:'objetivo',title:'Objetivo e impacto',text:'base de conhecimento faq modelos resposta padronizados tempo médio resolução chamado 8 minutos'},
+  {section:'estrutura',title:'Estrutura da planilha',text:'colunas tema gatilho sub-temas modelo resposta tickets economia aba FAQ'},
+  {section:'uso',title:'Como usar — passo a passo',text:'identificar tema localizar modelo substituir campos variáveis revisar enviar'},
+  {section:'uso',title:'Campos variáveis',text:'NOME EMAIL MODELO UNIDADE USUARIO TUNNEL OPERADORA GATEWAY SERVIDOR_MAIL SE_ condicional'},
+  {section:'uso',title:'Blocos condicionais',text:'SE_LINK_LENTO SE_QUER_MUDAR_PRINCIPAL blocos opcionais remover chamado'},
+  {section:'temas',title:'SD-WAN / Links',text:'link lento caindo velocidade redundância upload download principal secundário SDWAN'},
+  {section:'temas',title:'Webmail / E-mail',text:'email e-mail outlook protocolo imap pop smtp espaço alias apelido configuração'},
+  {section:'temas',title:'Interfaces / Equipamento',text:'equipamento offline painel lentidão perda pacotes pppoe link fora'},
+  {section:'temas',title:'VPN',text:'vpn sem acesso túnel caído gateway chave pré-compartilhada ssl'},
+  {section:'temas',title:'NAT / Acesso Externo',text:'nat port forwarding dvr câmera servidor acesso externo ip'},
+  {section:'temas',title:'WebFilter / Liberação',text:'site url whatsapp bloqueado categoria schedule horário liberação'},
+  {section:'temas',title:'DHCP / DNS',text:'dhcp range reserva mac apontamento dns domínio'},
+  {section:'temas',title:'Logs / Monitoramento',text:'relatório navegação banda vpn tempo real fortiview'},
+  {section:'temas',title:'Autenticação / Acesso',text:'captive portal wifi reautenticar dispositivo comprometido senha ssl ad'},
+  {section:'temas',title:'Gerência / Portal',text:'myportal cve vulnerabilidade fortinet acesso remoto painel'},
+  {section:'temas',title:'Backup',text:'backup status restauração veeam agendamento datacenters'},
+  {section:'temas',title:'Antivírus / Segurança',text:'antivirus kaspersky alerta comprometido ameaça av'},
+  {section:'praticas',title:'Boas práticas — o que fazer',text:'personalizar revisar remover blocos tom cliente sub-temas'},
+  {section:'praticas',title:'Boas práticas — o que evitar',text:'variáveis não preenchidas tema errado alertas conteúdo técnico'},
+  {section:'manutencao',title:'Responsabilidades de manutenção',text:'analistas líder engenharia produto atualização aprovação'},
+  {section:'manutencao',title:'Processo de atualização',text:'identificar registrar revisar publicar versão histórico'},
+  {section:'indicadores',title:'Indicadores de eficiência',text:'cobertura tempo médio consistência reabertura tickets tema'},
+];
+
+const sectionLabels={objetivo:'Objetivo',estrutura:'Estrutura da Planilha',uso:'Como Usar',temas:'Temas Disponíveis',praticas:'Boas Práticas',manutencao:'Manutenção',indicadores:'Indicadores'};
+
+document.getElementById('search-input').addEventListener('input',function(){
+  const q=this.value.trim().toLowerCase();
+  if(!q){
+    document.getElementById('search-results').style.display='none';
+    document.getElementById('main-content').style.display='';
+    return;
+  }
+  const results=searchData.filter(d=>d.text.toLowerCase().includes(q)||d.title.toLowerCase().includes(q));
+  const list=document.getElementById('search-results-list');
+  document.getElementById('search-results-title').textContent=`${results.length} resultado${results.length!==1?'s':''} para "${this.value}"`;
+  list.innerHTML='';
+  if(results.length===0){
+    list.innerHTML='<div style="color:var(--text3);font-size:14px">Nenhum resultado encontrado.</div>';
+  } else {
+    results.forEach(r=>{
+      const item=document.createElement('div');
+      item.className='sr-item';
+      const preview=r.text.slice(0,120).replace(new RegExp(q,'gi'),m=>`<span class="sr-highlight">${m}</span>`);
+      item.innerHTML=`<div class="sr-section">${sectionLabels[r.section]}</div><div class="sr-title">${r.title}</div><div class="sr-preview">${preview}…</div>`;
+      item.addEventListener('click',()=>{
+        document.getElementById('search-input').value='';
+        document.getElementById('search-results').style.display='none';
+        document.getElementById('main-content').style.display='';
+        navigate(r.section);
+      });
+      list.appendChild(item);
+    });
+  }
+  document.getElementById('search-results').style.display='block';
+  document.getElementById('main-content').style.display='none';
+});
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobile-overlay').classList.toggle('active');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobile-overlay').classList.remove('active');
+}
+</script>
+</body>
+</html>

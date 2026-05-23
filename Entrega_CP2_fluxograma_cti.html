@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluxograma de Atendimento — CTI</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --bg2: #f5f4f0; --bg3: #ebebeb;
+  --text: #1a1a18; --text2: #5a5a56; --text3: #9a9a95;
+  --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+  --radius: 10px; --radius-lg: 14px;
+  --blue50:#E6F1FB;--blue200:#85B7EB;--blue600:#185FA5;--blue900:#042C53;
+  --teal50:#E1F5EE;--teal200:#5DCAA5;--teal600:#0F6E56;--teal900:#04342C;
+  --purple50:#EEEDFE;--purple200:#AFA9EC;--purple600:#534AB7;--purple900:#26215C;
+  --amber50:#FAEEDA;--amber200:#EF9F27;--amber600:#854F0B;--amber900:#412402;
+  --green50:#EAF3DE;--green200:#97C459;--green900:#173404;
+  --red50:#FCEBEB;--red200:#F09595;--red600:#A32D2D;--red900:#501313;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#1e1e1c;--bg2:#282826;--bg3:#323230;
+    --text:#e8e6de;--text2:#a8a69e;--text3:#6a6a65;
+    --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
+    --blue50:#042C53;--blue200:#185FA5;--blue600:#85B7EB;--blue900:#E6F1FB;
+    --teal50:#04342C;--teal200:#0F6E56;--teal600:#5DCAA5;--teal900:#E1F5EE;
+    --purple50:#26215C;--purple200:#534AB7;--purple600:#AFA9EC;--purple900:#EEEDFE;
+    --amber50:#412402;--amber200:#854F0B;--amber600:#EF9F27;--amber900:#FAEEDA;
+  }
+}
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 2rem 1rem; min-height: 100vh; }
+.container { max-width: 900px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 2.5rem; }
+.header .eyebrow { font-size: 12px; font-weight: 500; color: var(--text2); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+.header h1 { font-size: 24px; font-weight: 600; color: var(--text); }
+.start-node { text-align: center; margin-bottom: 1rem; }
+.start-node .pill { display: inline-flex; align-items: center; gap: 8px; background: var(--bg2); border: 0.5px solid var(--border2); border-radius: 99px; padding: 8px 24px; font-size: 13px; font-weight: 500; }
+.connector { width: 2px; height: 20px; background: var(--border); margin: 0 auto; }
+.identify { text-align: center; font-size: 12px; color: var(--text2); margin: 4px 0 8px; }
+.pillar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
+@media (max-width: 640px) { .pillar-grid { grid-template-columns: repeat(2, 1fr); } }
+.pillar { border-radius: 12px; padding: 14px 12px; border: 0.5px solid; cursor: pointer; transition: transform .15s, opacity .15s; user-select: none; }
+.pillar:hover { transform: translateY(-2px); }
+.pillar.active { outline: 2px solid; }
+.pillar .p-icon { font-size: 20px; margin-bottom: 8px; }
+.pillar .p-num { font-size: 10px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 4px; }
+.pillar .p-title { font-size: 12px; font-weight: 600; line-height: 1.35; margin-bottom: 6px; }
+.pillar .p-subs { font-size: 11px; line-height: 1.5; opacity: .75; }
+.p-blue { background: var(--blue50); border-color: var(--blue200); color: var(--blue900); }
+.p-blue .p-num { color: var(--blue600); }
+.p-blue.active { outline-color: var(--blue600); }
+.p-teal { background: var(--teal50); border-color: var(--teal200); color: var(--teal900); }
+.p-teal .p-num { color: var(--teal600); }
+.p-teal.active { outline-color: var(--teal600); }
+.p-purple { background: var(--purple50); border-color: var(--purple200); color: var(--purple900); }
+.p-purple .p-num { color: var(--purple600); }
+.p-purple.active { outline-color: var(--purple600); }
+.p-amber { background: var(--amber50); border-color: var(--amber200); color: var(--amber900); }
+.p-amber .p-num { color: var(--amber600); }
+.p-amber.active { outline-color: var(--amber600); }
+.panel { display: none; background: var(--bg); border: 0.5px solid var(--border2); border-radius: 14px; padding: 20px; margin-bottom: 10px; }
+.panel.open { display: block; }
+.panel h2 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
+.subtopics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.subtopic { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: border-color .15s; }
+.subtopic:hover { border-color: var(--border2); }
+.subtopic.active { border-color: var(--border2); background: var(--bg3); }
+.subtopic .st-label { font-size: 12px; font-weight: 600; }
+.subtopic .st-desc { font-size: 11px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+.flow-section { display: none; }
+.flow-section.open { display: block; }
+.flow-section h3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--text2); margin-bottom: 12px; }
+.flow-node-wrap { display: flex; align-items: flex-start; gap: 0; }
+.node-line { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+.node-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid; flex-shrink: 0; margin-top: 15px; }
+.node-conn { width: 2px; background: var(--border); flex: 1; min-height: 16px; }
+.node-body { flex: 1; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 12px; margin: 6px 0 6px 8px; }
+.node-body .nb-q { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
+.node-body .nb-title { font-size: 13px; font-weight: 500; }
+.branches { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 2px 0 8px 28px; }
+@media (max-width: 500px) { .branches { grid-template-columns: 1fr; } }
+.branch { border-radius: 8px; padding: 10px 12px; border: 0.5px solid; }
+.branch .br-label { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+.branch .br-text { font-size: 11px; line-height: 1.5; }
+.b-sim { background: var(--teal50); border-color: var(--teal200); }
+.b-sim .br-label { color: var(--teal600); }
+.b-sim .br-text { color: var(--teal900); }
+.b-nao { background: var(--amber50); border-color: var(--amber200); }
+.b-nao .br-label { color: var(--amber600); }
+.b-nao .br-text { color: var(--amber900); }
+.b-warn { background: var(--red50); border-color: var(--red200); }
+.b-warn .br-label { color: var(--red600); }
+.b-warn .br-text { color: var(--red900); }
+.tip { border-left: 3px solid; border-radius: 0 8px 8px 0; padding: 10px 12px; margin: 8px 0; font-size: 12px; line-height: 1.5; color: var(--text2); background: var(--bg2); }
+.tip.info { border-color: #378ADD; }
+.tip.warn { border-color: var(--amber200); }
+.tip.danger { border-color: var(--red200); }
+.fim-wrap { text-align: center; margin-top: 14px; }
+.fim { display: inline-flex; align-items: center; gap: 8px; background: var(--bg2); border: 0.5px solid var(--border2); border-radius: 99px; padding: 8px 28px; font-size: 13px; font-weight: 500; color: var(--text2); letter-spacing: .06em; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="eyebrow">Protocolo de atendimento</div>
+    <h1>Central de Suporte CTI</h1>
+  </div>
+
+  <div class="start-node">
+    <div class="pill"><i class="ti ti-player-play" style="font-size:15px"></i> INÍCIO</div>
+  </div>
+  <div class="connector"></div>
+  <div class="identify">Identificar o tema e gatilho da dúvida</div>
+  <div class="connector"></div>
+
+  <div class="pillar-grid">
+    <div class="pillar p-blue" id="pill-p1" onclick="openPanel('p1')">
+      <div class="p-icon"><i class="ti ti-network"></i></div>
+      <div class="p-num">Pilar 1</div>
+      <div class="p-title">Serviços de Redes e Filtros de Conteúdo</div>
+      <div class="p-subs">WebFilter · DHCP/DNS · SD-WAN / Links</div>
+    </div>
+    <div class="pillar p-teal" id="pill-p2" onclick="openPanel('p2')">
+      <div class="p-icon"><i class="ti ti-shield-lock"></i></div>
+      <div class="p-num">Pilar 2</div>
+      <div class="p-title">Redes, Conectividade e Segurança</div>
+      <div class="p-subs">Interfaces · VPN · NAT / Acesso ext.</div>
+    </div>
+    <div class="pillar p-purple" id="pill-p3" onclick="openPanel('p3')">
+      <div class="p-icon"><i class="ti ti-settings"></i></div>
+      <div class="p-num">Pilar 3</div>
+      <div class="p-title">Gerenciamento, Monitoramento e Acessos</div>
+      <div class="p-subs">Webmail · Autenticação · Logs · MyPortal</div>
+    </div>
+    <div class="pillar p-amber" id="pill-p4" onclick="openPanel('p4')">
+      <div class="p-icon"><i class="ti ti-heartbeat"></i></div>
+      <div class="p-num">Pilar 4</div>
+      <div class="p-title">Continuidade de Negócios e Proteção</div>
+      <div class="p-subs">Backup · Antivírus / Kaspersky</div>
+    </div>
+  </div>
+
+  <!-- P1 -->
+  <div class="panel" id="panel-p1">
+    <h2><i class="ti ti-network" style="color:#185FA5"></i> Serviços de Redes e Filtros de Conteúdo <span class="badge" style="background:#B5D4F4;color:#042C53">Pilar 1</span></h2>
+    <div class="subtopics">
+      <div class="subtopic" id="sub-f1a" onclick="toggleFlow('f1a')">
+        <div class="st-label"><i class="ti ti-filter" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>WebFilter / Liberação</div>
+        <div class="st-desc">Sites, categorias, WhatsApp, schedule</div>
+      </div>
+      <div class="subtopic" id="sub-f1b" onclick="toggleFlow('f1b')">
+        <div class="st-label"><i class="ti ti-server" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>DHCP / DNS</div>
+        <div class="st-desc">Reserva MAC, apontamentos, cPanel</div>
+      </div>
+      <div class="subtopic" id="sub-f1c" onclick="toggleFlow('f1c')">
+        <div class="st-label"><i class="ti ti-git-branch" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>SD-WAN / Links</div>
+        <div class="st-desc">Qualidade, quedas, link principal/secund.</div>
+      </div>
+    </div>
+    <div class="flow-section" id="flow-f1a">
+      <h3>WebFilter — Fluxo de decisão</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#378ADD;background:#E6F1FB"></div><div class="node-conn"></div></div>
+        <div class="node-body"><div class="nb-q">Decisão</div><div class="nb-title">A solicitação envolve bloqueio/liberação por regras de horário ou categorias?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ SIM</div><div class="br-text">Filtros Avançados: informar qual categoria e tipo de usuário. Para horários, usar função "schedule" com início e fim.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ NÃO</div><div class="br-text">Erro no WhatsApp: verificar logs do firewall. Se há registros mas não funciona, problema é no dispositivo ou operadora.</div></div>
+      </div>
+    </div>
+    <div class="flow-section" id="flow-f1b">
+      <h3>DHCP/DNS — Fluxo de decisão</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#378ADD;background:#E6F1FB"></div><div class="node-conn"></div></div>
+        <div class="node-body"><div class="nb-q">Decisão</div><div class="nb-title">A solicitação é sobre alteração ou novo apontamento de DNS?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ SIM — DNS</div><div class="br-text">Apontamentos feitos exclusivamente pela equipe. Coletar: {DOMÍNIO}, Tipo (A/CNAME/MX/TXT), Valor e TTL (padrão 3600s).</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ NÃO — DHCP/IP</div><div class="br-text">Ranges configurados no firewall são {RANGES}. Para reserva de IP fixo, coletar o endereço MAC do equipamento.</div></div>
+      </div>
+    </div>
+    <div class="flow-section" id="flow-f1c">
+      <h3>SD-WAN / Links — Fluxo de decisão</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#378ADD;background:#E6F1FB"></div><div class="node-conn"></div></div>
+        <div class="node-body"><div class="nb-q">Decisão</div><div class="nb-title">O cliente reclama de oscilação ou link fora do ar?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ SIM</div><div class="br-text">Comportamento padrão: link com menor latência assume automaticamente. Acionar {OPERADORA} se houver perdas ou latência alta.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ NÃO — Alterar link</div><div class="br-text">Ajustar métrica de prioridade nas regras de SD-WAN. Confirmar qual link deve ser o preferencial.</div></div>
+      </div>
+      <div class="flow-node-wrap" style="margin-top:10px">
+        <div class="node-line"><div class="node-dot" style="border-color:#378ADD;background:#E6F1FB"></div><div class="node-conn"></div></div>
+        <div class="node-body"><div class="nb-q">Decisão</div><div class="nb-title">O equipamento responde ao teste de Ping?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ SIM</div><div class="br-text">Delay de sincronização. Equipamento operacional. O painel do cliente atualizará em alguns minutos.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ NÃO</div><div class="br-text">Erro PPPoE ou Link Caído. Autenticação depende da operadora. Cliente deve acionar {OPERADORA} com protocolo de atendimento.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P2 -->
+  <div class="panel" id="panel-p2">
+    <h2><i class="ti ti-shield-lock" style="color:#0F6E56"></i> Redes, Conectividade e Segurança <span class="badge" style="background:#9FE1CB;color:#04342C">Pilar 2</span></h2>
+    <div class="subtopics">
+      <div class="subtopic" id="sub-f2a" onclick="toggleFlow('f2a')">
+        <div class="st-label"><i class="ti ti-device-desktop" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Interfaces / Equipamento</div>
+        <div class="st-desc">Offline, lentidão, PPPoE</div>
+      </div>
+      <div class="subtopic" id="sub-f2b" onclick="toggleFlow('f2b')">
+        <div class="st-label"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>VPN</div>
+        <div class="st-desc">Usuário sem acesso, túnel caído, gateway</div>
+      </div>
+      <div class="subtopic" id="sub-f2c" onclick="toggleFlow('f2c')">
+        <div class="st-label"><i class="ti ti-arrow-right" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>NAT / Acesso Externo</div>
+        <div class="st-desc">DVR, câmeras, port forwarding</div>
+      </div>
+    </div>
+    <div class="flow-section" id="flow-f2a">
+      <h3>Interfaces / Equipamento — Fluxo</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#1D9E75;background:#E1F5EE"></div><div class="node-conn"></div></div>
+        <div class="node-body" style="background:#E1F5EE;border-color:#5DCAA5"><div class="nb-q" style="color:#0F6E56">Decisão</div><div class="nb-title" style="color:#04342C">O usuário está na rede local da empresa?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ SIM — Rede local</div><div class="br-text">Verificar conectividade interna. Checar estado das interfaces no firewall e latência interna.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ NÃO — Rede externa</div><div class="br-text">Erro de conexão esperado. Orientar a testar em rede externa (4G) antes de escalar.</div></div>
+      </div>
+      <div class="tip info">Equipamento offline: verificar se responde a ping. Se sim, aguardar sincronização do painel (alguns minutos).</div>
+    </div>
+    <div class="flow-section" id="flow-f2b">
+      <h3>VPN — Fluxo de decisão</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#1D9E75;background:#E1F5EE"></div><div class="node-conn"></div></div>
+        <div class="node-body" style="background:#E1F5EE;border-color:#5DCAA5"><div class="nb-q" style="color:#0F6E56">Decisão</div><div class="nb-title" style="color:#04342C">O usuário está na rede local da empresa?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ SIM — Verificar AD</div><div class="br-text">Verificar se usuário está no grupo correto do AD / SSL VPN.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ NÃO — Teste 4G</div><div class="br-text">Erro esperado fora da rede. Testar em 4G e enviar Modelo de Resposta VPN (Pág. 14).</div></div>
+      </div>
+    </div>
+    <div class="flow-section" id="flow-f2c">
+      <h3>NAT / Acesso Externo — Fluxo</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#1D9E75;background:#E1F5EE"></div><div class="node-conn"></div></div>
+        <div class="node-body"><div class="nb-q">Coleta obrigatória</div><div class="nb-title">Solicitar: IP interno, portas a abrir, protocolo (TCP/UDP) e IP de origem</div></div>
+      </div>
+      <div class="flow-node-wrap" style="margin-top:10px">
+        <div class="node-line"><div class="node-dot" style="border-color:#1D9E75;background:#E1F5EE"></div><div class="node-conn"></div></div>
+        <div class="node-body" style="background:#E1F5EE;border-color:#5DCAA5"><div class="nb-q" style="color:#0F6E56">Decisão</div><div class="nb-title" style="color:#04342C">O direcionamento de NAT está correto mas continua sem acesso?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ SIM — Firewall interno</div><div class="br-text">Causa mais comum! Verificar se o dispositivo (DVR/Servidor) possui firewall próprio bloqueando as portas.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ NÃO — Mitigação</div><div class="br-text">Aplicar políticas de origens autorizadas. Agendar atualização de firmware em janela de manutenção.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P3 -->
+  <div class="panel" id="panel-p3">
+    <h2><i class="ti ti-settings" style="color:#534AB7"></i> Gerenciamento, Monitoramento e Acessos <span class="badge" style="background:#CECBF6;color:#26215C">Pilar 3</span></h2>
+    <div class="subtopics">
+      <div class="subtopic" id="sub-f3a" onclick="toggleFlow('f3a')">
+        <div class="st-label"><i class="ti ti-mail" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Webmail / E-mail</div>
+        <div class="st-desc">Config. Outlook, espaço cheio, alias</div>
+      </div>
+      <div class="subtopic" id="sub-f3b" onclick="toggleFlow('f3b')">
+        <div class="st-label"><i class="ti ti-key" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Autenticação / Acesso</div>
+        <div class="st-desc">Captive Portal WiFi, credenciais</div>
+      </div>
+      <div class="subtopic" id="sub-f3c" onclick="toggleFlow('f3c')">
+        <div class="st-label"><i class="ti ti-chart-bar" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Logs / Monitoramento</div>
+        <div class="st-desc">Relatório de consumo, FortiView</div>
+      </div>
+      <div class="subtopic" id="sub-f3d" onclick="toggleFlow('f3d')">
+        <div class="st-label"><i class="ti ti-browser" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Gerência / MyPortal</div>
+        <div class="st-desc">CVE, firmware, uso do portal</div>
+      </div>
+    </div>
+    <div class="flow-section" id="flow-f3a">
+      <h3>Webmail / E-mail — Ações</h3>
+      <div class="tip info">Caixa cheia: mover mensagens para "Arquivo Morto" no Webmail ou limpar Lixeira/Spam.</div>
+      <div class="tip info">Conta é Apelido (Alias): login deve ser feito com dados da conta original.</div>
+      <div class="tip info">Portas Outlook: IMAP 993 (SSL) · SMTP 587 (TLS)</div>
+    </div>
+    <div class="flow-section" id="flow-f3b">
+      <h3>Autenticação / Acesso — Fluxo</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#534AB7;background:#EEEDFE"></div><div class="node-conn"></div></div>
+        <div class="node-body" style="background:#EEEDFE;border-color:#AFA9EC"><div class="nb-q" style="color:#534AB7">Decisão</div><div class="nb-title" style="color:#26215C">A solicitação é para WiFi persistente (Captive Portal) ou máquina "comprometida"?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ WiFi persistente</div><div class="br-text">Modo Persistent: configurar para o dispositivo não precisar reautenticar. Coletar endereço MAC do equipamento.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ Credenciais</div><div class="br-text">Troca de Senhas (Firewall/VPN/WiFi) só realizada mediante chamado autorizado pelo responsável técnico.</div></div>
+      </div>
+      <div class="tip warn">Limpeza de Cache: na maioria dos casos é registro temporário. O status normaliza sozinho após alguns minutos.</div>
+    </div>
+    <div class="flow-section" id="flow-f3c">
+      <h3>Logs / Monitoramento — Fluxo</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#534AB7;background:#EEEDFE"></div><div class="node-conn"></div></div>
+        <div class="node-body" style="background:#EEEDFE;border-color:#AFA9EC"><div class="nb-q" style="color:#534AB7">Decisão</div><div class="nb-title" style="color:#26215C">O cliente quer analisar histórico passado ou ver o tráfego agora?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ Histórico — Relatório</div><div class="br-text">Confirmar período ({DATA_INICIO} a {DATA_FIM}), Usuário/IP e tipo: Navegação, Banda, VPN ou Eventos.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ Tempo real</div><div class="br-text">FortiGate em Dashboard > FortiView para visualizar tráfego por aplicação e usuário no momento atual.</div></div>
+      </div>
+    </div>
+    <div class="flow-section" id="flow-f3d">
+      <h3>Gerência / MyPortal / CVE — Fluxo</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#534AB7;background:#EEEDFE"></div><div class="node-conn"></div></div>
+        <div class="node-body" style="background:#EEEDFE;border-color:#AFA9EC"><div class="nb-q" style="color:#534AB7">Decisão</div><div class="nb-title" style="color:#26215C">O chamado é sobre uma vulnerabilidade (CVE) publicada?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-sim"><div class="br-label">✓ SIM — CVE</div><div class="br-text">Guia Rápido MyPortal (myportal.cti.com.br): Novo Chamado, Meus Chamados e Acesso Remoto.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ NÃO — Firmware</div><div class="br-text">Agendar atualização de firmware em janela de manutenção. Aplicar políticas de mitigação de risco.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P4 -->
+  <div class="panel" id="panel-p4">
+    <h2><i class="ti ti-heartbeat" style="color:#854F0B"></i> Continuidade de Negócios e Proteção <span class="badge" style="background:#FAC775;color:#412402">Pilar 4</span></h2>
+    <div class="subtopics">
+      <div class="subtopic" id="sub-f4a" onclick="toggleFlow('f4a')">
+        <div class="st-label"><i class="ti ti-database" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Backup</div>
+        <div class="st-desc">Status, agendamento, restauração</div>
+      </div>
+      <div class="subtopic" id="sub-f4b" onclick="toggleFlow('f4b')">
+        <div class="st-label"><i class="ti ti-bug" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Antivírus / Segurança</div>
+        <div class="st-desc">Kaspersky, dispositivo infectado, contenção</div>
+      </div>
+    </div>
+    <div class="flow-section" id="flow-f4a">
+      <h3>Backup — Ações</h3>
+      <div class="tip info">Solicitar para restauração: {ITEM} (arquivo/pasta/VM), {DATA} do backup e se o destino é o local original ou novo caminho.</div>
+      <div class="tip info">Infraestrutura: backups rodam conforme agendamento. Datacenters em SP (Barueri e Santana de Parnaíba). Recomendação: Veeam Backup &amp; Replication.</div>
+    </div>
+    <div class="flow-section" id="flow-f4b">
+      <h3>Antivírus / Segurança — Fluxo</h3>
+      <div class="flow-node-wrap">
+        <div class="node-line"><div class="node-dot" style="border-color:#EF9F27;background:#FAEEDA"></div><div class="node-conn"></div></div>
+        <div class="node-body" style="background:#FAEEDA;border-color:#EF9F27"><div class="nb-q" style="color:#854F0B">Decisão</div><div class="nb-title" style="color:#412402">O dispositivo apresenta comportamento anormal (lentidão extrema, pop-ups)?</div></div>
+      </div>
+      <div class="branches">
+        <div class="branch b-warn"><div class="br-label">✓ SIM — Contenção</div><div class="br-text">1. Isolar o dispositivo da rede. 2. Executar varredura completa offline. 3. Acionar equipe para análise dos logs de tráfego.</div></div>
+        <div class="branch b-nao"><div class="br-label">✗ NÃO — Alerta falso</div><div class="br-text">Avisos costumam ser registros em cache que normalizam sozinhos em minutos. Monitorar.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+  <div class="fim-wrap">
+    <div class="fim"><i class="ti ti-flag" style="font-size:15px"></i> FIM</div>
+  </div>
+</div>
+
+<script>
+let openPillar = null;
+let openFlow = null;
+
+function openPanel(id) {
+  const panels = ['p1','p2','p3','p4'];
+  if (openPillar === id) {
+    document.getElementById('panel-' + id).classList.remove('open');
+    document.getElementById('pill-' + id).classList.remove('active');
+    openPillar = null;
+    return;
+  }
+  panels.forEach(p => {
+    document.getElementById('panel-' + p).classList.remove('open');
+    document.getElementById('pill-' + p).classList.remove('active');
+  });
+  if (openFlow) {
+    const el = document.getElementById('flow-' + openFlow);
+    const sub = document.getElementById('sub-' + openFlow);
+    if (el) el.classList.remove('open');
+    if (sub) sub.classList.remove('active');
+    openFlow = null;
+  }
+  document.getElementById('panel-' + id).classList.add('open');
+  document.getElementById('pill-' + id).classList.add('active');
+  openPillar = id;
+}
+
+function toggleFlow(id) {
+  if (openFlow === id) {
+    document.getElementById('flow-' + id).classList.remove('open');
+    document.getElementById('sub-' + id).classList.remove('active');
+    openFlow = null;
+    return;
+  }
+  if (openFlow) {
+    document.getElementById('flow-' + openFlow).classList.remove('open');
+    document.getElementById('sub-' + openFlow).classList.remove('active');
+  }
+  document.getElementById('flow-' + id).classList.add('open');
+  document.getElementById('sub-' + id).classList.add('active');
+  openFlow = id;
+}
+</script>
+</body>
+</html>
